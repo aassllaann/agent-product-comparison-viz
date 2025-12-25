@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "promise-queue": "^2.2.5",
+    "request": "^2.88.2"
+  }
+}
