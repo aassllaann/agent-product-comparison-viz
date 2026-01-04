@@ -11,6 +11,7 @@ class Camera(Base):
     id = Column(Integer, primary_key=True, index=True)
     Brand = Column(String)
     Model = Column(String)
+    Alias = Column(String)  # New column for search matching
     Price = Column(Float)
     Year = Column(Integer)
     image_file = Column(String)

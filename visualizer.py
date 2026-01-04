@@ -1,67 +1,109 @@
-import matplotlib.pyplot as plt
-import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
 import os
-
-# 样式美化
-plt.style.use('ggplot')
-plt.rcParams['font.sans-serif'] = ['SimHei', 'sans-serif']
-plt.rcParams['axes.unicode_minus'] = False
 
 def _ensure_dir():
     if not os.path.exists("charts"):
         os.makedirs("charts")
 
-def draw_radar(camera):
-    _ensure_dir()
+def draw_radar(cameras):
+    # 雷达图数据维度
     labels = ['便携', '画质', '视频', '高感', '操控']
-    values = [camera.Portability_Score, camera.LowLight_Score, camera.Video_Score, 
-              min(camera.Max_ISO/25600*100, 100), 85]
+    colors = ['#008080', '#FF8C00', '#4682B4']
     
-    angles = np.linspace(0, 2*np.pi, len(labels), endpoint=False).tolist()
-    values += values[:1]
-    angles += angles[:1]
+    fig = go.Figure()
 
-    fig, ax = plt.subplots(figsize=(3, 3), subplot_kw=dict(polar=True))
-    ax.fill(angles, values, color='#008080', alpha=0.3)
-    ax.plot(angles, values, color='#008080', linewidth=1.5)
-    ax.set_yticklabels([])
-    ax.set_thetagrids(np.degrees(angles[:-1]), labels, fontsize=8)
-    
-    path = f"charts/radar_{camera.id}.png"
-    plt.savefig(path, transparent=True, bbox_inches='tight')
-    plt.close()
-    return path
+    for i, cam in enumerate(cameras):
+        # 归一化/处理数据
+        values = [cam.Portability_Score, cam.LowLight_Score, cam.Video_Score, 
+                  min(cam.Max_ISO/25600*100, 100), 85] # 操控暂时固定85，实际可拓展
+        # 闭合
+        values += values[:1]
+        
+        fig.add_trace(go.Scatterpolar(
+            r=values,
+            theta=labels + labels[:1],
+            fill='toself',
+            name=f"{cam.Model}",
+            line_color=colors[i % len(colors)],
+            fillcolor=colors[i % len(colors)],
+            opacity=0.6 if i==0 else 0.3, # 第一款稍微深一点
+            hovertemplate='<b>%{theta}</b>: %{r:.1f}<br>(%{data.name})<extra></extra>'
+        ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=8), gridcolor='rgba(0,0,0,0.1)'),
+            angularaxis=dict(tickfont=dict(size=10, color='#333'), gridcolor='rgba(0,0,0,0.1)')
+        ),
+        margin=dict(l=40, r=40, t=20, b=20),
+        height=300,
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5), # 图例放到底部
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
 
 def draw_comparison(cameras, field_name):
-    _ensure_dir()
-    names = [f"{c.Model[:6]}.." for c in cameras]
+    # 此函数保持不变，因为柱状图本身就是对比
+    names = [f"{c.Model[:8]}.." for c in cameras]
+    full_names = [f"{c.Brand} {c.Model}" for c in cameras]
     scores = [getattr(c, field_name) for c in cameras]
+    colors = ['#008080', '#FF8C00', '#4682B4']
     
-    fig, ax = plt.subplots(figsize=(3, 2.5))
-    ax.bar(names, scores, color=['#008080', '#FF8C00', '#4682B4'])
-    ax.set_title(f"{field_name} 对比", fontsize=9)
-    ax.tick_params(labelsize=7)
-    
-    path = "charts/compare_bar.png"
-    plt.savefig(path, transparent=True, bbox_inches='tight')
-    plt.close()
-    return path
+    fig = go.Figure(data=[go.Bar(
+        x=names,
+        y=scores,
+        marker_color=colors[:len(cameras)],
+        text=scores,
+        textposition='auto',
+        hovertext=full_names,
+        hovertemplate='<b>%{hovertext}</b><br>得分: %{y}<extra></extra>'
+    )])
 
-def draw_price_performance(cameras, all_cameras):
-    _ensure_dir()
-    all_prices = [c.Price for c in all_cameras]
-    all_scores = [(c.LowLight_Score + c.Video_Score)/2 for c in all_cameras]
+    fig.update_layout(
+        title=dict(text=f"{field_name} 对比", font=dict(size=14), x=0.5, y=0.95),
+        margin=dict(l=20, r=20, t=40, b=20),
+        height=280,
+        yaxis=dict(range=[0, 105], showgrid=True, gridcolor='rgba(0,0,0,0.1)'),
+        xaxis=dict(tickangle=0),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def draw_multi_dimension_compare(cameras):
+    # 多维能力对比（分组柱状图）
+    dims = ['便携性', '低光画质', '视频能力']
+    colors = ['#008080', '#FF8C00', '#4682B4'] # 三款相机三种颜色
     
-    fig, ax = plt.subplots(figsize=(3, 2.5))
-    ax.scatter(all_prices, all_scores, c='gray', alpha=0.1, s=5)
-    
-    rec_prices = [c.Price for c in cameras]
-    rec_scores = [(c.LowLight_Score + c.Video_Score)/2 for c in cameras]
-    ax.scatter(rec_prices, rec_scores, c='#E63946', s=40, edgecolors='white')
-    ax.set_title("性价比分布", fontsize=9)
-    ax.tick_params(labelsize=7)
-    
-    path = "charts/price_perf.png"
-    plt.savefig(path, transparent=True, bbox_inches='tight')
-    plt.close()
-    return path
+    fig = go.Figure()
+
+    for i, cam in enumerate(cameras):
+        # 提取该相机的三个维度得分
+        scores = [cam.Portability_Score, cam.LowLight_Score, cam.Video_Score]
+        
+        fig.add_trace(go.Bar(
+            name=f"{cam.Model}",
+            x=dims,
+            y=scores,
+            marker_color=colors[i % len(colors)],
+            text=scores,
+            textposition='auto',
+            hovertemplate='<b>%{x}</b>: %{y}<br>(%{data.name})<extra></extra>'
+        ))
+
+    fig.update_layout(
+        title=dict(text="核心能力多维对比", font=dict(size=14), x=0.5, y=0.95),
+        barmode='group', # 分组显示
+        xaxis=dict(tickfont=dict(size=12)),
+        yaxis=dict(range=[0, 105], title='评分', gridcolor='rgba(0,0,0,0.1)'),
+        margin=dict(l=20, r=20, t=40, b=20),
+        height=300,
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig

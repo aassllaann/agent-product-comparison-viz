@@ -79,10 +79,11 @@ def render_assistant_response(reply, charts, results):
         st.markdown("<hr style='margin:1.5em 0 1em 0;border:0;border-top:1.5px solid #e0eaff;'>", unsafe_allow_html=True)
         st.markdown("<div style='font-weight:600;font-size:1.1em;margin-bottom:0.5em;'>📊 性能深度对比分析</div>", unsafe_allow_html=True)
         chart_cols = st.columns(3)
-        captions = ["性能画像", "Top3 对比", "性价比分布"]
+        captions = ["性能画像", "Top3 对比", "核心能力对比"]
         for i, col in enumerate(chart_cols):
             if i < len(charts):
-                col.image(charts[i], caption=captions[i], use_container_width=True)
+                with col:
+                    st.plotly_chart(charts[i], use_container_width=True, config={'displayModeBar': False})
         # 图表下方详细分析
         if chart_analyses:
             for i, analysis in enumerate(chart_analyses):

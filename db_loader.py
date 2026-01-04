@@ -27,11 +27,22 @@ def load_data():
     try:
         print(f"正在导入 {len(df)} 条数据到 PostgreSQL...")
         for _, row in df.iterrows():
-            simulated_price = random.randint(30, 250) * 100
+            # 读取 Alias
+            alias = row.get('Alias')
+            if pd.isna(alias):
+                # 尝试从 'Also known as' 读取 (如果 update_data.py 没有重命名列)
+                alias = row.get('Also known as')
+            
+            # 读取 Price (不再随机生成，除非为空)
+            price = row.get('Price')
+            if pd.isna(price) or price == 0 or price == '':
+                 price = random.randint(30, 250) * 100
+            
             camera = Camera(
                 Brand=row.get('Brand'),
                 Model=row.get('Model'),
-                Price=simulated_price,
+                Alias=alias,
+                Price=price,
                 Year=row.get('Year'),
                 image_file=row.get('image_file'),
                 Total_megapixels=row.get('Total megapixels'),
