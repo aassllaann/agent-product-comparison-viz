@@ -1,12 +1,21 @@
 import json
+from typing import List
 from sqlalchemy import desc
 from models import SessionLocal, Camera
 import visualizer
 from openai import OpenAI
 import config
+from base_agent import BaseProductAgent, CategoryConfig, ScoringDimension
 
-class CameraAgent:
-     # 场景-推荐机型集合 (Golden Sets)
+
+class CameraAgent(BaseProductAgent):
+    """
+    相机推荐代理
+    
+    继承自 BaseProductAgent，实现相机品类特有的评分体系和推荐逻辑。
+    """
+    
+    # 场景-推荐机型集合 (Golden Sets)
     SCENARIO_PRESETS = {
         "vlog": ["ZV-E10", "G7 X", "Pocket", "Action", "Z30"],
         "travel": ["X100", "GR III", "a6400", "Z fc", "X-T30", "X-S10"],
@@ -26,11 +35,70 @@ class CameraAgent:
     }
 
     def __init__(self):
+        super().__init__()
         self.db = SessionLocal()
-        self.client = OpenAI(
-            api_key=config.DASHSCOPE_API_KEY, 
-            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    
+    # ==================== 实现 BaseProductAgent 抽象方法 ====================
+    
+    def get_category_config(self) -> CategoryConfig:
+        """返回相机品类配置"""
+        return CategoryConfig(
+            name="相机",
+            name_en="camera",
+            table_name="cameras",
+            scoring_dimensions=self.get_specific_dimensions(),
+            scenario_presets=self.SCENARIO_PRESETS,
+            scenario_keywords=self.SCENARIO_KEYWORDS,
+            default_sort_field="LowLight_Score",
+            display_fields=["Brand", "Model", "Price", "Weight_g", "Max_ISO", "Supports_4K"]
         )
+    
+    def get_specific_dimensions(self) -> List[ScoringDimension]:
+        """返回相机品类特有评分维度"""
+        return [
+            ScoringDimension(
+                name="便携性",
+                field="Portability_Score",
+                weight=0.20,
+                description="机身重量和体积的综合考量"
+            ),
+            ScoringDimension(
+                name="低光画质",
+                field="LowLight_Score",
+                weight=0.30,
+                description="弱光环境下的成像能力"
+            ),
+            ScoringDimension(
+                name="视频能力",
+                field="Video_Score",
+                weight=0.25,
+                description="视频拍摄性能，包括4K支持等"
+            ),
+        ]
+    
+    def get_db_session(self):
+        """返回数据库会话"""
+        return self.db
+    
+    def get_model_class(self):
+        """返回 Camera 模型类"""
+        return Camera
+    
+    def get_product_info_text(self, cam) -> str:
+        """格式化相机信息为文本"""
+        return f"""品牌型号: {cam.Brand} {cam.Model}
+价格: {cam.Price}元
+重量: {cam.Weight_g}g
+低光画质评分: {cam.LowLight_Score}
+视频能力评分: {cam.Video_Score}
+便携性评分: {cam.Portability_Score}
+最大ISO: {cam.Max_ISO}
+支持4K: {'是' if cam.Supports_4K else '否'}
+传感器: {getattr(cam, 'Sensor_type', '未知')}
+上市年份: {getattr(cam, 'Year', '未知')}"""
+    
+    # ==================== 相机特有方法 ====================
+
 
     def _parse_intent(self, user_msg, history=None):
         """
