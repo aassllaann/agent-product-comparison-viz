@@ -14,7 +14,8 @@ st.set_page_config(
 st.markdown("""
     <style>
     [data-testid="stMetricValue"] { font-size: 1.4rem; color: #008080; }
-    .main .block-container { padding: 1rem 2rem; max-width: 100%; }
+    .main .block-container { padding: 0.5rem 2rem; max-width: 100%; }
+    h1 { margin-top: -1.5rem; padding-top: 0; }
     .chat-container { 
         height: 400px; 
         overflow-y: auto; 
@@ -64,6 +65,9 @@ if 'last_reasons' not in st.session_state:
 if 'current_category' not in st.session_state:
     st.session_state.current_category = None
 
+# 初始化检测器
+detector = CategoryDetector()
+
 # 品类图标
 CATEGORY_ICONS = {
     "camera": "📷", "phone": "📱", "headphone": "🎧", "laptop": "💻", "tablet": "📟",
@@ -88,27 +92,75 @@ def render_product_card(product, reason=None):
         brand = getattr(product, 'Brand', '')
         model = getattr(product, 'Model', '')
         price = getattr(product, 'Price', 0)
-        scores = {'便携': getattr(product, 'Portability_Score', 0), '低光': getattr(product, 'LowLight_Score', 0)}
-        specs = {'重量': f"{getattr(product, 'Weight_g', 0)}g", 'ISO': getattr(product, 'Max_ISO', 0)}
-    
+        
+        # 动态提取规格和评分
+        class_name = type(product).__name__
+        specs = {}
+        scores = {}
+        
+        # 提取评分
+        for k in dir(product):
+            if k.endswith('_Score') and getattr(product, k):
+                scores[k.replace('_Score', '')] = getattr(product, k)
+
+        # 提取特定规格
+        if class_name == 'Phone':
+            specs = {
+                '处理器': getattr(product, 'Processor', '-'),
+                '内存': f"{getattr(product, 'RAM_GB', 0)}G+{getattr(product, 'Storage_GB', 0)}G",
+                '电池': f"{getattr(product, 'Battery_mAh', 0)}mAh",
+                '主摄': f"{getattr(product, 'Camera_MP', 0)}MP"
+            }
+        elif class_name == 'Laptop':
+            specs = {
+                'CPU': getattr(product, 'CPU', '-'),
+                '显卡': getattr(product, 'GPU', '-'),
+                '内存': f"{getattr(product, 'RAM_GB', 0)}G",
+                '屏幕': f"{getattr(product, 'Screen_Size_in', 0)}英寸"
+            }
+        elif class_name == 'Headphone':
+            specs = {
+                '耳机类型': getattr(product, 'Type', '-'),
+                '主动降噪': '✅' if getattr(product, 'ANC', False) else '❌',
+                '续航时间': f"{getattr(product, 'Battery_Hours', 0)}h"
+            }
+        elif class_name == 'Camera':
+            specs = {
+                '像素': f"{getattr(product, 'Total_megapixels', 0)}MP",
+                'ISO': getattr(product, 'Max_ISO', 0),
+                '重量': f"{getattr(product, 'Weight_g', 0)}g", 
+                '4K': '✅' if getattr(product, 'Supports_4K', False) else '❌'
+            }
+        elif class_name == 'Tablet':
+             specs = {
+                '处理器': getattr(product, 'Processor', '-'),
+                '屏幕': f"{getattr(product, 'Screen_Size_in', 0)}英寸",
+                '手写笔': '✅' if getattr(product, 'Stylus_Support', False) else '❌'
+             }
+        else:
+             # 默认/Fallback
+             specs = {'ID': getattr(product, 'id', '-')}
+
     st.markdown(f"<div class='product-card'>", unsafe_allow_html=True)
     st.markdown(f"**{brand} {model}**")
-    st.markdown(f"💰 ¥{int(price)}")
+    st.markdown(f"<div style='color:#008080;font-weight:bold;font-size:1.1em'>💰 ¥{int(price)}</div>", unsafe_allow_html=True)
     
-    # 评分
+    # 评分展示
     if scores:
-        score_str = " | ".join([f"{k.replace('_Score','')}: {v}" for k, v in list(scores.items())[:3]])
-        st.caption(score_str)
+        # 选取前3个关键评分
+        top_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:3]
+        score_tags = "".join([f"<span style='background:#e0f2f1;color:#00695c;padding:2px 8px;border-radius:12px;margin-right:4px;font-size:0.8em'>{k} {v}</span>" for k, v in top_scores])
+        st.markdown(f"<div style='margin: 8px 0;'>{score_tags}</div>", unsafe_allow_html=True)
     
-    # 规格
+    # 规格展示 (不折叠，使用 Tag 样式)
     if specs:
-        with st.expander("规格详情", expanded=False):
-            for k, v in list(specs.items())[:5]:
-                st.write(f"• {k}: {v}")
+        st.markdown("<div style='margin-bottom:8px;display:flex;flex-wrap:wrap;gap:4px;'>", unsafe_allow_html=True)
+        for k, v in specs.items():
+            st.markdown(f"<span style='background:#f5f5f5;padding:2px 6px;border-radius:4px;font-size:0.85em;color:#555'><b>{k}</b>: {v}</span>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
     
     # 推荐理由
     if reason:
-        # 手动处理 Markdown 转 HTML 以确保在 div 中样式生效
         import re
         html_reason = reason.replace('\n', '<br>')
         html_reason = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', html_reason)
@@ -116,67 +168,50 @@ def render_product_card(product, reason=None):
     
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- 侧边栏 ---
-with st.sidebar:
-    st.header("🛒 支持品类")
-    detector = CategoryDetector()
-    
-    groups = {
-        "数码": ["camera", "phone", "headphone", "laptop"],
-        "美妆": ["skincare", "cosmetics"],
-        "办公": ["stationery", "office"],
-        "生活": ["appliance", "sports", "book"],
-    }
-    
-    for group, keys in groups.items():
-        cats = [f"{get_icon(k)} {detector.KNOWN_CATEGORIES[k]['name']}" for k in keys if k in detector.KNOWN_CATEGORIES]
-        st.write(f"**{group}**: " + ", ".join(cats))
-    
-    st.markdown("---")
-    st.info("""
-    💡 **数据说明**
-    - **所有品类**: 统一使用电商API
-    - **数据来源**: 京东联盟API（Mock）
-    - **后续**: 可接入真实API密钥
-    """)
-    if st.button("🗑️ 清空对话"):
-        st.session_state.messages = []
-        st.session_state.last_results = None
-        st.session_state.last_charts = None
-        st.rerun()
-
 # --- 主界面：左右分栏 ---
-st.title("🛒 AI 智能选购助手")
+st.title("🛒 数码产品智能导购")
+st.caption("支持品类：📷 相机 | � 手机 | � 笔记本 | 🎧 耳机 | � 平板")
 
 # 左侧：对话区 | 右侧：推荐结果区
-left_col, right_col = st.columns([1, 3])
+left_col, right_col = st.columns([0.6, 2.2]) # 调整比例，对话栏再窄一些
 
 # 左侧：对话区
 with left_col:
-    st.markdown("<div class='section-header'>💬 对话</div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>💬 智能咨询</div>", unsafe_allow_html=True)
     
     # 对话容器
-    chat_container = st.container()
+    chat_container = st.container(height=500) # 使用固定高度容器
     
     with chat_container:
+        if not st.session_state.messages:
+            st.info("👋 你好！我是你的数码选购助手。告诉我你的预算和需求，例如：\n\n- *推荐一款5000元左右的Vlog相机*\n- *适合大学生的轻薄笔记本*\n- *音质好的降噪耳机*")
+            
         # 显示历史消息
-        for msg in st.session_state.messages[-10:]:  # 只显示最近10条
+        for msg in st.session_state.messages:
             role = msg["role"]
             content = msg["content"]
             
             if role == "user":
-                st.markdown(f"**🧑 你**: {content}")
+                st.chat_message("user").write(content)
             else:
                 # 助手消息只显示简短摘要
-                if isinstance(content, list):
-                    st.markdown(f"**🤖 助手**: 已为您推荐 {len(content)} 款商品")
-                else:
-                    st.markdown(f"**🤖 助手**: {str(content)[:100]}...")
+                with st.chat_message("assistant"):
+                    if isinstance(content, list):
+                        st.write(f"已为您推荐 {len(content)} 款商品，请看右侧详情 👉")
+                    else:
+                        st.write(content)
     
-    st.markdown("---")
-    
-    # 输入框
+    # 输入区域
     prompt = st.chat_input("输入需求，如：推荐护肤精华、想买耳机...")
+    
+    # 底部工具栏
+    col_tools, col_empty = st.columns([1, 2])
+    with col_tools:
+        if st.button("🗑️ 清空对话", use_container_width=True):
+            st.session_state.messages = []
+            st.session_state.last_results = None
+            st.session_state.last_charts = None
+            st.rerun()
     
     if prompt:
         # 添加用户消息
@@ -184,10 +219,15 @@ with left_col:
         
         # 识别品类
         cat_key, cat_name = detector.detect_category(prompt)
+        # 强制修正为电子产品范围（防止 detector 返回其他）
+        if cat_key not in ['camera', 'phone', 'laptop', 'headphone', 'tablet']:
+             # 实际上 DynamicAgent 还是会处理，但这里为了前端展示，我们可以更新 current_category
+             pass
+
         st.session_state.current_category = cat_name
         
         # 获取推荐
-        with st.spinner(f"搜索 {cat_name}..."):
+        with st.spinner(f"正在分析需求并搜索 {cat_name}..."):
             history = [{"role": m["role"], "content": str(m["content"])} for m in st.session_state.messages[-6:]]
             reply, charts, results, analyses = st.session_state.agent.handle_chat(prompt, history=history)
             

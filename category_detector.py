@@ -26,61 +26,69 @@ class CategoryDetector:
         # 数码电子
         "camera": {
             "name": "相机",
-            "keywords": ["相机", "单反", "微单", "数码相机", "拍照", "摄影", "camera", "vlog"]
+            "group": "常用品类",
+            "keywords": ["相机", "单反", "微单", "数码相机", "camera"]
         },
         "phone": {
             "name": "手机",
-            "keywords": ["手机", "智能手机", "phone", "iphone", "安卓", "android"]
+            "group": "常用品类",
+            "keywords": ["手机", "智能手机", "phone", "iphone", "android"]
         },
         "laptop": {
             "name": "笔记本电脑",
+            "group": "常用品类",
             "keywords": ["笔记本", "电脑", "laptop", "notebook", "macbook", "游戏本"]
         },
         "headphone": {
             "name": "耳机",
-            "keywords": ["耳机", "headphone", "airpods", "降噪", "蓝牙耳机"]
+            "group": "常用品类",
+            "keywords": ["耳机", "headphone", "airpods", "耳麦"]
         },
         "tablet": {
             "name": "平板电脑",
+            "group": "常用品类",
             "keywords": ["平板", "ipad", "tablet", "pad"]
         },
         
         # 护肤美妆
         "skincare": {
             "name": "护肤品",
-            "keywords": ["护肤", "护肤品", "面霜", "精华", "水乳", "防晒", "洁面", "爽肤水", "乳液", "面膜"]
+            "group": "常用品类",
+            "keywords": ["护肤品", "面霜", "精华", "水乳", "洁面", "爽肤水", "乳液", "面膜"]
         },
         "cosmetics": {
             "name": "化妆品",
-            "keywords": ["化妆品", "口红", "粉底", "眼影", "腮红", "彩妆", "美妆"]
+            "group": "常用品类",
+            "keywords": ["化妆品", "口红", "粉底", "眼影", "腮红", "彩妆"]
         },
         
-        # 文具办公
+        # 办公文教
         "stationery": {
             "name": "文具",
-            "keywords": ["文具", "笔", "钢笔", "中性笔", "本子", "笔记本", "文具盒", "书写"]
+            "group": "常用品类",
+            "keywords": ["文具", "钢笔", "中性笔", "铅笔", "圆珠笔"]
         },
         "office": {
             "name": "办公用品",
-            "keywords": ["办公", "打印机", "订书机", "文件夹", "办公用品"]
+            "group": "常用品类",
+            "keywords": ["打印机", "订书机", "复印机", "投影仪"]
         },
-        
-        # 家电
-        "appliance": {
-            "name": "小家电",
-            "keywords": ["小家电", "吹风机", "电饭煲", "烤箱", "榨汁机", "咖啡机", "空气炸锅"]
-        },
-        
-        # 运动户外
-        "sports": {
-            "name": "运动装备",
-            "keywords": ["运动", "跑鞋", "运动鞋", "健身", "瑜伽", "球拍", "运动装备", "跑步鞋"]
-        },
-        
-        # 图书
         "book": {
             "name": "图书",
-            "keywords": ["书", "图书", "小说", "教材", "书籍", "读物"]
+            "group": "常用品类",
+            "keywords": ["图书", "小说", "教材", "书籍"]
+        },
+        
+        # 生活百货
+        "appliance": {
+            "name": "小家电",
+            "group": "常用品类",
+            "keywords": ["吹风机", "电饭煲", "烤箱", "榨汁机", "咖啡机", "空气炸锅", "冰箱", "洗衣机"]
+        },
+        "sports": {
+            "name": "运动装备",
+            "group": "常用品类",
+            "keywords": ["跑鞋", "球拍", "跑步机", "哑铃", "篮球", "足球"]
         },
     }
     

@@ -12,6 +12,12 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "product_recommendation")
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "sk-a2c6636594fa497f9b6053b93ea5ff8d")
 LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-v3.2")
 
+# 淘宝（OneBound）API 配置
+# 京东联盟 API 配置
+JD_APP_KEY = os.getenv("JD_APP_KEY", "666ac91c8c065ed90ed854276d2c0c3f")
+JD_APP_SECRET = os.getenv("JD_APP_SECRET", "18265b805c584f78869d38217b765da8")
+JD_API_URL = "https://api.jd.com/routerjson"
+
 # --- 其他配置 ---
 CHART_DIR = "charts"
 

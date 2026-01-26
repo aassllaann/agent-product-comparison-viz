@@ -1,0 +1,34 @@
+Brand,Model,Price,Year,image_file,Screen_Size_in,Weight_g,Processor,RAM_GB,Storage_GB,Battery_mAh,OS,Stylus_Support,Performance_Score,Display_Score,Productivity_Score,Value_Score
+Apple,iPad Pro 13 M4,10999,2024,,13.0,579,Apple M4,16,256,10307,iPadOS,True,98,98,95,78
+Apple,iPad Pro 11 M4,7999,2024,,11.0,446,Apple M4,8,256,8359,iPadOS,True,96,96,92,82
+Apple,iPad Air 13 M2,7599,2024,,13.0,618,Apple M2,8,128,10307,iPadOS,True,90,92,88,82
+Apple,iPad Air 11 M2,4799,2024,,11.0,462,Apple M2,8,128,7606,iPadOS,True,88,90,85,88
+Apple,iPad 10,3599,2022,,10.9,477,A14 Bionic,4,64,7606,iPadOS,True,80,85,78,88
+Apple,iPad mini 7,4599,2024,,8.3,293,A17 Pro,8,128,5078,iPadOS,True,88,88,75,82
+Samsung,Galaxy Tab S9 Ultra,9999,2023,,14.6,732,骁龙8 Gen2,12,256,11200,Android,True,92,95,92,80
+Samsung,Galaxy Tab S9+,7999,2023,,12.4,586,骁龙8 Gen2,12,256,10090,Android,True,90,92,88,82
+Samsung,Galaxy Tab S9,5999,2023,,11.0,498,骁龙8 Gen2,8,128,8400,Android,True,88,90,85,86
+Samsung,Galaxy Tab S9 FE,3699,2023,,10.9,523,Exynos 1380,6,128,8000,Android,True,78,82,78,90
+Samsung,Galaxy Z Fold5,12999,2023,,7.6,253,骁龙8 Gen2,12,256,4400,Android,True,90,88,85,72
+Huawei,MatePad Pro 13.2,7699,2023,,13.2,580,麒麟9000S,12,256,10100,HarmonyOS,True,88,94,90,84
+Huawei,MatePad Pro 11,4699,2023,,11.0,449,骁龙888,8,128,8300,HarmonyOS,True,82,90,85,88
+Huawei,MatePad 11.5,2299,2023,,11.5,499,骁龙7 Gen1,8,128,7700,HarmonyOS,True,75,85,78,94
+Huawei,MatePad Paper,4299,2022,,10.3,360,麒麟820E,4,64,3625,HarmonyOS,True,65,92,85,78
+Xiaomi,Pad 6S Pro,3299,2024,,12.4,590,骁龙8 Gen2,12,256,10000,Android,True,90,92,88,94
+Xiaomi,Pad 6 Pro,2599,2023,,11.0,490,骁龙8+ Gen1,8,256,8600,Android,True,86,88,82,94
+Xiaomi,Pad 6,1999,2023,,11.0,490,骁龙870,8,128,8840,Android,True,78,85,75,96
+Lenovo,Legion Y700 2023,2999,2023,,8.8,350,骁龙8+ Gen1,12,256,6550,Android,False,88,88,65,90
+Lenovo,Xiaoxin Pad Pro 12.7,2999,2023,,12.7,615,骁龙870,8,256,10200,Android,True,78,88,82,92
+OPPO,Pad 2,2999,2023,,11.6,552,天玑9000,12,256,9510,Android,True,86,88,85,90
+vivo,Pad 2,2499,2023,,12.1,580,天玑9000,8,128,10000,Android,True,85,88,82,92
+Honor,Pad V8 Pro,3299,2022,,12.1,599,天玑8100,8,256,10050,Android,True,82,88,82,88
+Honor,Pad 9,2099,2024,,12.1,555,骁龙6 Gen1,8,256,8300,Android,True,72,85,78,94
+realme,Pad 2,1599,2023,,11.5,507,Helio G99,6,128,8360,Android,True,68,82,72,96
+OnePlus,Pad,2999,2023,,11.6,552,天玑9000,12,256,9510,Android,True,86,88,85,90
+Microsoft,Surface Pro 9,9888,2022,,13.0,879,Intel i7-1255U,16,256,48000,Windows,True,85,92,95,75
+Microsoft,Surface Go 3,4388,2021,,10.5,553,Intel i3-10100Y,8,128,27000,Windows,True,65,78,75,78
+联想,小新Pad Pro 2024,1999,2024,,11.5,510,骁龙870,6,128,8200,Android,True,76,85,78,96
+荣耀,平板9,2099,2024,,12.1,555,骁龙6 Gen1,8,256,8300,Android,True,72,85,78,94
+Apple,iPad Pro 13 M5,11999,2025,,13.0,570,Apple M5,16,512,10500,iPadOS,True,99,99,98,75
+Samsung,Galaxy Tab S10 Ultra,10999,2025,,14.6,730,骁龙8 Gen4,16,512,11500,Android,True,95,96,95,78
+Huawei,MatePad Pro 13.2 2025,8299,2025,,13.2,575,麒麟9100,16,512,10200,HarmonyOS,True,92,95,94,82

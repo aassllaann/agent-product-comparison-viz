@@ -1,0 +1,44 @@
+Brand,Model,Price,Year,image_file,Storage_GB,RAM_GB,Screen_Size_in,Battery_mAh,Camera_MP,Processor,OS,Performance_Score,Camera_Score,Battery_Score,Value_Score
+Apple,iPhone 15 Pro Max,9999,2023,,256,8,6.7,4422,48,A17 Pro,iOS,95,94,85,80
+Apple,iPhone 15 Pro,7999,2023,,128,8,6.1,3274,48,A17 Pro,iOS,94,93,80,82
+Apple,iPhone 15,5999,2023,,128,6,6.1,3349,48,A16 Bionic,iOS,88,88,82,85
+Apple,iPhone 15 Plus,6999,2023,,128,6,6.7,4383,48,A16 Bionic,iOS,88,88,90,83
+Apple,iPhone 14,4999,2023,,128,6,6.1,3279,12,A15 Bionic,iOS,85,82,80,88
+Samsung,Galaxy S24 Ultra,9699,2024,,256,12,6.8,5000,200,骁龙8 Gen3,Android,96,96,90,82
+Samsung,Galaxy S24+,7499,2024,,256,12,6.7,4900,50,骁龙8 Gen3,Android,92,90,88,84
+Samsung,Galaxy S24,5999,2024,,128,8,6.2,4000,50,骁龙8 Gen3,Android,90,88,82,86
+Samsung,Galaxy Z Fold5,12999,2023,,256,12,7.6,4400,50,骁龙8 Gen2,Android,90,85,75,70
+Samsung,Galaxy Z Flip5,6999,2023,,256,8,6.7,3700,12,骁龙8 Gen2,Android,88,80,72,78
+Huawei,Mate 60 Pro+,8999,2023,,512,16,6.82,5000,48,麒麟9000S,HarmonyOS,92,93,88,82
+Huawei,Mate 60 Pro,6999,2023,,256,12,6.82,5000,48,麒麟9000S,HarmonyOS,90,92,88,85
+Huawei,Mate 60,5499,2023,,256,12,6.69,4750,50,麒麟9000S,HarmonyOS,88,88,85,88
+Huawei,Pura 70 Ultra,6499,2024,,256,16,6.76,5200,50,麒麟9010,HarmonyOS,91,95,90,85
+Huawei,Pura 70 Pro,5999,2024,,256,12,6.76,5050,50,麒麟9010,HarmonyOS,89,93,88,86
+Xiaomi,14 Ultra,6499,2024,,256,16,6.73,5300,50,骁龙8 Gen3,Android,94,96,88,88
+Xiaomi,14 Pro,4999,2024,,256,12,6.73,4880,50,骁龙8 Gen3,Android,92,92,85,90
+Xiaomi,14,3999,2024,,256,12,6.36,4610,50,骁龙8 Gen3,Android,92,90,82,92
+Xiaomi,13 Ultra,5999,2023,,256,12,6.73,5000,50,骁龙8 Gen2,Android,90,94,86,85
+Xiaomi,Redmi K70 Pro,3299,2023,,256,12,6.67,5000,50,骁龙8 Gen3,Android,90,85,88,94
+Xiaomi,Redmi K70,2599,2023,,256,12,6.67,5000,50,骁龙8 Gen2,Android,86,82,88,95
+OPPO,Find X7 Ultra,5999,2024,,256,16,6.82,5000,50,骁龙8 Gen3,Android,93,95,88,86
+OPPO,Find X7,4299,2024,,256,12,6.78,5000,50,天玑9300,Android,91,90,88,90
+OPPO,Reno12 Pro,3399,2024,,256,12,6.7,5000,50,天玑9200+,Android,85,85,88,88
+OPPO,Reno12,2699,2024,,256,8,6.7,5000,50,天玑8250,Android,80,82,88,90
+vivo,X100 Ultra,6499,2024,,256,16,6.78,5500,50,骁龙8 Gen3,Android,93,96,92,86
+vivo,X100 Pro,4999,2024,,256,12,6.78,5400,50,天玑9300,Android,91,94,90,88
+vivo,X100,3999,2024,,256,12,6.78,5000,50,天玑9300,Android,90,90,88,90
+vivo,X Fold3 Pro,9999,2024,,256,16,8.03,5700,50,骁龙8 Gen3,Android,92,88,85,78
+vivo,iQOO 12 Pro,4999,2023,,256,16,6.78,5100,50,骁龙8 Gen3,Android,94,85,90,88
+OnePlus,12,4299,2024,,256,12,6.82,5400,50,骁龙8 Gen3,Android,93,90,90,92
+OnePlus,Ace 3,2599,2024,,256,12,6.78,5500,50,骁龙8 Gen2,Android,88,82,92,94
+Honor,Magic6 Pro,5499,2024,,256,12,6.78,5600,50,骁龙8 Gen3,Android,92,92,92,88
+Honor,Magic6,4399,2024,,256,12,6.78,5280,50,骁龙8 Gen3,Android,90,88,90,90
+Honor,Magic V3,9999,2024,,256,12,7.92,5150,50,骁龙8 Gen3,Android,91,86,82,75
+Meizu,21 Pro,4999,2024,,256,12,6.79,5050,50,骁龙8 Gen3,Android,92,85,85,86
+realme,GT5 Pro,3399,2023,,256,12,6.78,5400,50,骁龙8 Gen3,Android,92,88,90,94
+Apple,iPhone 16 Pro Max,9999,2024,,256,8,6.9,4676,48,A18 Pro,iOS,97,95,90,82
+Apple,iPhone 17 Pro Max,10999,2025,,256,12,6.9,4800,48,A19 Pro,iOS,99,97,92,80
+Samsung,Galaxy S25 Ultra,9999,2025,,256,16,6.8,5000,200,骁龙8 Gen4,Android,98,97,92,82
+Samsung,Galaxy S26 Ultra,10999,2026,,256,16,6.8,5200,200,骁龙8 Gen5,Android,99,98,94,80
+Xiaomi,15 Pro,5499,2024,,256,16,6.73,5400,50,骁龙8 Gen4,Android,96,94,92,90
+Huawei,Mate 70 Pro,7999,2024,,256,12,6.8,5000,50,麒麟9100,HarmonyOS,94,95,90,85

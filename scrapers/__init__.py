@@ -10,4 +10,4 @@
 from .base_scraper import BaseScraper, ProductData
 from .jd_scraper import JDScraper
 
-__all__ = ['BaseScraper', 'ProductData', 'JDScraper']
+__all__ = ["BaseScraper", "ProductData", "JDScraper"]
