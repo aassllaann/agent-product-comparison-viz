@@ -64,6 +64,8 @@ if 'last_reasons' not in st.session_state:
     st.session_state.last_reasons = None
 if 'current_category' not in st.session_state:
     st.session_state.current_category = None
+if 'last_eco_suggestion' not in st.session_state:
+    st.session_state.last_eco_suggestion = None
 
 # 初始化检测器
 detector = CategoryDetector()
@@ -71,6 +73,8 @@ detector = CategoryDetector()
 # 品类图标
 CATEGORY_ICONS = {
     "camera": "📷", "phone": "📱", "headphone": "🎧", "laptop": "💻", "tablet": "📟",
+    "smartwatch": "⌚", "bluetooth_speaker": "🔊", "monitor": "🖥️", 
+    "gaming_console": "🎮", "gpu": "🎨",
     "skincare": "🧴", "cosmetics": "💄", "stationery": "✏️", "office": "🖨️",
     "appliance": "🔌", "sports": "👟", "book": "📚"
 }
@@ -137,6 +141,36 @@ def render_product_card(product, reason=None):
                 '屏幕': f"{getattr(product, 'Screen_Size_in', 0)}英寸",
                 '手写笔': '✅' if getattr(product, 'Stylus_Support', False) else '❌'
              }
+        elif class_name == 'BluetoothSpeaker' or class_name == 'Bluetooth_Speaker':
+            specs = {
+                '功率': f"{getattr(product, 'Power_W', 0)}W",
+                '续航': f"{getattr(product, 'Battery_Hours', 0)}h",
+                '防水': getattr(product, 'Waterproof_Rating', '-')
+            }
+        elif class_name == 'Smartwatch':
+            specs = {
+                '续航': f"{getattr(product, 'Battery_Days', 0)}天",
+                '系统': getattr(product, 'OS', '-'),
+                '防水': getattr(product, 'Waterproof_Rating', '-')
+            }
+        elif class_name == 'Monitor':
+            specs = {
+                '尺寸': f"{getattr(product, 'Screen_Size_in', 0)}英寸",
+                '分辨率': getattr(product, 'Resolution', '-'),
+                '刷新率': f"{getattr(product, 'Refresh_Rate_Hz', 0)}Hz"
+            }
+        elif class_name == 'GamingConsole' or class_name == 'Gaming_Console':
+            specs = {
+                '分辨率': getattr(product, 'Max_Resolution', '-'),
+                '存储': f"{getattr(product, 'Storage_GB', 0)}GB",
+                '独占': f"{getattr(product, 'Exclusive_Games_Count', 0)}款"
+            }
+        elif class_name == 'GPU':
+            specs = {
+                '显存': f"{getattr(product, 'VRAM_GB', 0)}GB",
+                '芯片': getattr(product, 'Chip_Manufacturer', '-'),
+                '功耗': f"{getattr(product, 'TDP_W', 0)}W"
+            }
         else:
              # 默认/Fallback
              specs = {'ID': getattr(product, 'id', '-')}
@@ -169,8 +203,8 @@ def render_product_card(product, reason=None):
     st.markdown("</div>", unsafe_allow_html=True)
 
 # --- 主界面：左右分栏 ---
-st.title("🛒 数码产品智能导购")
-st.caption("支持品类：📷 相机 | � 手机 | � 笔记本 | 🎧 耳机 | � 平板")
+st.title("🛒 数码产品智能导购 · 生态推荐")
+st.caption("💡 支持 10 大品类：📷 相机 | 📱 手机 | 💻 笔记本 | 🎧 耳机 | 📟 平板 | ⌚ 智能手表 | 🔊 音箱 | 🖥️ 显示器 | 🎮 主机 | 🎨 显卡")
 
 # 左侧：对话区 | 右侧：推荐结果区
 left_col, right_col = st.columns([0.6, 2.2]) # 调整比例，对话栏再窄一些
@@ -184,7 +218,21 @@ with left_col:
     
     with chat_container:
         if not st.session_state.messages:
-            st.info("👋 你好！我是你的数码选购助手。告诉我你的预算和需求，例如：\n\n- *推荐一款5000元左右的Vlog相机*\n- *适合大学生的轻薄笔记本*\n- *音质好的降噪耳机*")
+            st.info("""👋 你好！我是你的**数码生态选购助手**。
+            
+**🎯 核心功能：**
+• 智能推荐最适合你的产品
+• 提供生态化搭配建议，让设备发挥更大价值
+• 支持多轮对话，理解你的真实场景
+
+**💬 快速开始：**
+- *推荐一款适合Vlog的相机，预算5000左右*
+- *经常出差，需要轻薄本和配套耳机*
+- *想玩《黑神话》，帮我选主机和显示器*
+
+支持品类：📷 相机 | 📱 手机 | 💻 笔记本 | 🎧 耳机 | 📟 平板 | ⌚ 智能手表 | 🔊 音箱 | 🖥️ 显示器 | 🎮 主机 | 🎨 显卡
+
+输入你的需求，开始智能选购吧！""")
             
         # 显示历史消息
         for msg in st.session_state.messages:
@@ -202,7 +250,7 @@ with left_col:
                         st.write(content)
     
     # 输入区域
-    prompt = st.chat_input("输入需求，如：推荐护肤精华、想买耳机...")
+    prompt = st.chat_input("输入需求，如：推荐一款游戏本、想买个降噪耳机...")
     
     # 底部工具栏
     col_tools, col_empty = st.columns([1, 2])
@@ -229,13 +277,14 @@ with left_col:
         # 获取推荐
         with st.spinner(f"正在分析需求并搜索 {cat_name}..."):
             history = [{"role": m["role"], "content": str(m["content"])} for m in st.session_state.messages[-6:]]
-            reply, charts, results, analyses = st.session_state.agent.handle_chat(prompt, history=history)
+            reply, charts, results, analyses, eco_suggestion = st.session_state.agent.handle_chat(prompt, history=history)
             
             # 保存结果
             st.session_state.last_results = results
             st.session_state.last_charts = charts
             st.session_state.last_analyses = analyses
             st.session_state.last_reasons = reply if isinstance(reply, list) else None
+            st.session_state.last_eco_suggestion = eco_suggestion
             
             # 添加助手消息
             st.session_state.messages.append({"role": "assistant", "content": reply})
@@ -260,6 +309,25 @@ with right_col:
             with col:
                 reason = reasons[idx] if reasons and idx < len(reasons) else None
                 render_product_card(product, reason)
+        
+        # 生态系统搭配建议板块
+        eco_suggestion = st.session_state.last_eco_suggestion
+        if eco_suggestion:
+            st.markdown(f"""
+                <div style='background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); 
+                            border-left: 5px solid #008080; 
+                            padding: 15px; 
+                            border-radius: 8px; 
+                            margin: 20px 0;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
+                    <div style='color: #008080; font-weight: bold; font-size: 1.1em; margin-bottom: 5px;'>
+                        🔗 全场景生态搭配建议
+                    </div>
+                    <div style='color: #334e68; font-size: 1em; line-height: 1.5;'>
+                        {eco_suggestion}
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
         
         # 图表区
         if charts and any(charts):
@@ -291,4 +359,4 @@ with right_col:
         
         # 移除底部的统一分析文本循环
     else:
-        st.info("👈 在左侧输入您的需求，开始智能选购！\n\n支持：相机、手机、耳机、护肤品、文具、小家电等 12 个品类")
+        st.info("👈 在左侧输入您的需求，开始智能选购！\n\n支持手机、笔记本、相机、耳机、显卡等 10 大数码品类，为您提供全场景生态搭配建议。")

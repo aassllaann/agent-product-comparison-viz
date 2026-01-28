@@ -1,7 +1,7 @@
 import json
 from typing import List, Dict, Any, Optional
 from sqlalchemy import desc
-from models import SessionLocal, Phone, Laptop, Headphone, Tablet, Camera
+from models import SessionLocal, Phone, Laptop, Headphone, Tablet, Camera, Smartwatch, BluetoothSpeaker, Monitor, GamingConsole, GPU
 import visualizer
 from openai import OpenAI
 import config
@@ -30,15 +30,17 @@ class BaseDbAgent(BaseProductAgent):
         2. budget_level (投入): 预算描述
         3. max_price (预算): 数字，单位元，默认 100000 (无限)
         4. sort_field (排序字段): 基于用户需求选择最合适的评分字段 ({fields_desc})
-        5. summary (包含): 解析出的核心诉求摘要
-        6. product_type (类型): 显式要求的产品特定类型（如"头戴式"、"入耳式"、"游戏本"等），无明确要求则留空
+        5. summary (摘要): 解析出的核心诉求
+        6. product_type (类型): 显式要求的**目标产品**特定类型（如"头戴式"、"游戏本"等）
+        7. brand (品牌): 用户明确指出**想要购买**的品牌名（如"我要英伟达显卡" -> "NVIDIA"）。注意：用户提到的**已拥有**设备的品牌（如"我刚买了PS5"）**不应**填入此字段。
+        8. owned_items (已购设备): 用户提到已经拥有的产品品类或型号（如"PS5", "iPhone"）
 
         【推理规则】：
         - 预算缺省默认为 20000。
-        - 若无明显排序偏好，默认使用 Value_Score (性价比) 或 Performance_Score (性能)。
-        - 仔细区分用户对产品类型的限制，例如"头戴式耳机"应提取 product_type="头戴式"。
+        - 如果用户提到"不差钱"、"旗舰"、"顶配"，max_price 设为 999999。
+        - **关键**: brand 字段只填用户**想买**的品牌。如果用户说"给我的 Sony 电视配个音箱"，想买的是音箱，brand 字段应为空（除非用户明确说要 Sony 音箱）。
 
-        输出严格 JSON：{{"max_price": 数字, "sort_field": "字段名", "summary": "核心诉求", "usage": "场景关键词", "product_type": "..."}}
+        输出严格 JSON：{{"max_price": 数字, "sort_field": "字段名", "summary": "核心诉求", "usage": "场景关键词", "product_type": "...", "brand": "品牌", "owned_items": []}}
         """
         try:
             messages = [{"role": "system", "content": system_rules}]
@@ -92,6 +94,14 @@ class BaseDbAgent(BaseProductAgent):
             if item.Price and item.Price > max_price:
                 continue
             
+            # 品牌过滤
+            brand_filter = intent.get('brand')
+            if brand_filter and brand_filter.lower() not in ["", "null", "none"]:
+                # 使用关键词包含关系过滤
+                if brand_filter.lower() not in item.Brand.lower() and item.Brand.lower() not in brand_filter.lower():
+                    print(f"[Debug] Filtering out {item.Brand} because brand filter is {brand_filter}")
+                    continue
+
             # 类型过滤
             product_type = intent.get('product_type')
             if product_type and product_type.lower() != "null":
@@ -111,7 +121,7 @@ class BaseDbAgent(BaseProductAgent):
 
     def _fallback_search(self, intent, model_class, exclude_ids=None):
         """兜底搜索"""
-        if exclude_ids is None:
+        if exclude_ids == None:
             exclude_ids = []
             
         query = self.db.query(model_class).filter(
@@ -128,6 +138,11 @@ class BaseDbAgent(BaseProductAgent):
                 query = query.filter(model_class.Type.ilike(f"%{product_type}%"))
             elif hasattr(model_class, 'Category'):
                 query = query.filter(model_class.Category.ilike(f"%{product_type}%"))
+
+        # 品牌过滤
+        brand_filter = intent.get('brand')
+        if brand_filter and brand_filter.lower() not in ["", "null", "none"]:
+            query = query.filter(model_class.Brand.ilike(f"%{brand_filter}%"))
 
         sort_field = intent.get('sort_field', 'Value_Score')
         if hasattr(model_class, sort_field):
@@ -239,7 +254,22 @@ class BaseDbAgent(BaseProductAgent):
         # 1. 解析意图
         intent = self._parse_intent_generic(user_msg, config.name, fields_desc, history)
         
-        # 2. 场景匹配
+        # 补丁：处理极端性能词汇
+        extreme_words = ["最强", "最好", "最高", "不差钱", "旗舰"]
+        if any(w in user_msg for w in extreme_words):
+            intent['max_price'] = 999999
+            # 自动映射到该品类最核心的性能维度
+            perf_map = {
+                "GPU": "Creative_Score", # 显卡优先保证跑分/创作
+                "Phone": "Performance_Score",
+                "Laptop": "Performance_Score",
+                "Monitor": "Display_Score",
+                "GamingConsole": "Performance_Score"
+            }
+            if config.name_en.capitalize() in perf_map:
+                intent['sort_field'] = perf_map[config.name_en.capitalize()]
+        
+        self.last_intent = intent
         usage = intent.get('usage', '').lower()
         summary = intent.get('summary', '').lower()
         target_scenario = None
@@ -445,7 +475,7 @@ class HeadphoneAgent(BaseDbAgent):
     }
     
     SCENARIO_KEYWORDS = {
-        "commute": ["通勤", "地铁", "降噪", "飞机", "安静"],
+        "commute": ["通勤", "地铁", "降噪", "飞机", "安静", "出差"],
         "hifi": ["音质", "发烧", "高保真", "无损", "听歌"],
         "sports": ["运动", "跑步", "健身", "防汗", "牢固"]
     }
@@ -476,7 +506,22 @@ class HeadphoneAgent(BaseDbAgent):
         return f"型号:{p.Brand} {p.Model}, 价格:{p.Price}, 类型:{p.Type}, 降噪:{'是' if p.ANC else '否'}, 续航:{p.Battery_Hours}h"
 
     def handle_chat(self, user_msg, history=None):
-        return self.handle_chat_generic(user_msg, history, Headphone, self.SCENARIO_KEYWORDS)
+        result = self.handle_chat_generic(user_msg, history, Headphone, self.SCENARIO_KEYWORDS)
+        
+        # 强力 Fallback: 确保永远有推荐
+        reasons, charts, results, analyses = result
+        if not results:
+            print("[HeadphoneAgent] No results found, using HARD FALLBACK.")
+            # 强制推荐 Top 3 (按价格倒序)
+            results = self.db.query(Headphone).order_by(desc(Headphone.Price)).limit(3).all()
+            if results:
+                reasons = ["抱歉，根据具体要求暂未找到匹配，但为您精选了以下几款热门的高端耳机供您参考："]
+                # 重新生成图表
+                import visualizer
+                charts, analyses = visualizer.generate_comparison_chart(results, self.get_category_config().scoring_dimensions)
+                return reasons, charts, results, analyses
+                
+        return result
 
 
 class TabletAgent(BaseDbAgent):
@@ -521,3 +566,231 @@ class TabletAgent(BaseDbAgent):
 
     def handle_chat(self, user_msg, history=None):
         return self.handle_chat_generic(user_msg, history, Tablet, self.SCENARIO_KEYWORDS)
+
+
+class SmartwatchAgent(BaseDbAgent):
+    """智能手表推荐代理"""
+    
+    SCENARIO_PRESETS = {
+        "fitness": ["Garmin", "COROS", "Polar", "Suunto", "Amazfit"],
+        "daily": ["Apple Watch", "Galaxy Watch", "Huawei", "小米", "OPPO"],
+        "professional": ["Garmin Fenix", "Apple Watch Ultra", "Suunto", "COROS"]
+    }
+    
+    SCENARIO_KEYWORDS = {
+        "fitness": ["运动", "跑步", "健身", "马拉松", "训练", "GPS"],
+        "daily": ["日常", "通勤", "通知", "支付", "便捷"],
+        "professional": ["专业", "户外", "登山", "潜水", "极限"]
+    }
+
+    def get_category_config(self):
+        return CategoryConfig(
+            name="智能手表",
+            name_en="smartwatch",
+            table_name="smartwatches",
+            scoring_dimensions=[
+                ScoringDimension("续航", "Battery_Score", 0.25, "电池续航能力"),
+                ScoringDimension("健康功能", "Health_Score", 0.25, "健康监测功能"),
+                ScoringDimension("智能体验", "Smart_Score", 0.25, "智能功能体验"),
+                ScoringDimension("性价比", "Value_Score", 0.25, "综合性价比")
+            ],
+            scenario_presets=self.SCENARIO_PRESETS,
+            scenario_keywords=self.SCENARIO_KEYWORDS,
+            default_sort_field="Value_Score",
+            display_fields=["Brand", "Model", "Price", "Battery_Days", "OS", "Waterproof_Rating"]
+        )
+
+    def get_specific_dimensions(self):
+        return self.get_category_config().scoring_dimensions
+
+    def get_model_class(self):
+        return Smartwatch
+
+    def get_product_info_text(self, p: Smartwatch) -> str:
+        return f"型号:{p.Brand} {p.Model}, 价格:{p.Price}, 续航:{p.Battery_Days}天, 系统:{p.OS}, 防水:{p.Waterproof_Rating}"
+
+    def handle_chat(self, user_msg, history=None):
+        return self.handle_chat_generic(user_msg, history, Smartwatch, self.SCENARIO_KEYWORDS)
+
+
+class BluetoothSpeakerAgent(BaseDbAgent):
+    """蓝牙音箱推荐代理"""
+    
+    SCENARIO_PRESETS = {
+        "portable": ["JBL Flip", "JBL Go", "Sony XB", "Bose SoundLink Flex", "小米"],
+        "home": ["Bose", "Marshall", "Harman Kardon", "B&O", "Sony"],
+        "outdoor": ["JBL Xtreme", "JBL Charge", "Sony XG", "UE BOOM", "Anker"]
+    }
+    
+    SCENARIO_KEYWORDS = {
+        "portable": ["便携", "户外", "旅行", "轻便", "随身"],
+        "home": ["家用", "桌面", "音质", "发烧", "HiFi"],
+        "outdoor": ["户外", "防水", "派对", "大音量", "露营"]
+    }
+
+    def get_category_config(self):
+        return CategoryConfig(
+            name="蓝牙音箱",
+            name_en="bluetooth_speaker",
+            table_name="bluetooth_speakers",
+            scoring_dimensions=[
+                ScoringDimension("音质", "Sound_Score", 0.35, "声音表现"),
+                ScoringDimension("续航", "Battery_Score", 0.25, "电池续航"),
+                ScoringDimension("便携性", "Portability_Score", 0.2, "便携程度"),
+                ScoringDimension("性价比", "Value_Score", 0.2, "综合性价比")
+            ],
+            scenario_presets=self.SCENARIO_PRESETS,
+            scenario_keywords=self.SCENARIO_KEYWORDS,
+            default_sort_field="Sound_Score",
+            display_fields=["Brand", "Model", "Price", "Power_W", "Battery_Hours", "Waterproof_Rating"]
+        )
+
+    def get_specific_dimensions(self):
+        return self.get_category_config().scoring_dimensions
+
+    def get_model_class(self):
+        return BluetoothSpeaker
+
+    def get_product_info_text(self, p: BluetoothSpeaker) -> str:
+        return f"型号:{p.Brand} {p.Model}, 价格:{p.Price}, 功率:{p.Power_W}W, 续航:{p.Battery_Hours}h, 防水:{p.Waterproof_Rating}"
+
+    def handle_chat(self, user_msg, history=None):
+        return self.handle_chat_generic(user_msg, history, BluetoothSpeaker, self.SCENARIO_KEYWORDS)
+
+
+class MonitorAgent(BaseDbAgent):
+    """显示器推荐代理"""
+    
+    SCENARIO_PRESETS = {
+        "gaming": ["ASUS ROG", "LG", "Samsung Odyssey", "MSI", "Gigabyte"],
+        "office": ["Dell U", "LG", "BenQ", "ASUS ProArt", "ViewSonic"],
+        "creative": ["Dell U", "BenQ SW", "ASUS ProArt", "LG", "Apple Studio"]
+    }
+    
+    SCENARIO_KEYWORDS = {
+        "gaming": ["游戏", "电竞", "144hz", "240hz", "高刷"],
+        "office": ["办公", "护眼", "商务", "文档", "编程"],
+        "creative": ["设计", "修图", "调色", "摄影", "视频", "剪辑"]
+    }
+
+    def get_category_config(self):
+        return CategoryConfig(
+            name="显示器",
+            name_en="monitor",
+            table_name="monitors",
+            scoring_dimensions=[
+                ScoringDimension("画质", "Display_Score", 0.35, "显示效果"),
+                ScoringDimension("性能", "Performance_Score", 0.25, "刷新率响应时间"),
+                ScoringDimension("人体工学", "Ergonomics_Score", 0.2, "支架调节护眼"),
+                ScoringDimension("性价比", "Value_Score", 0.2, "综合性价比")
+            ],
+            scenario_presets=self.SCENARIO_PRESETS,
+            scenario_keywords=self.SCENARIO_KEYWORDS,
+            default_sort_field="Display_Score",
+            display_fields=["Brand", "Model", "Price", "Screen_Size_in", "Resolution", "Refresh_Rate_Hz", "Panel_Type"]
+        )
+
+    def get_specific_dimensions(self):
+        return self.get_category_config().scoring_dimensions
+
+    def get_model_class(self):
+        return Monitor
+
+    def get_product_info_text(self, p: Monitor) -> str:
+        return f"型号:{p.Brand} {p.Model}, 价格:{p.Price}, 尺寸:{p.Screen_Size_in}寸, 分辨率:{p.Resolution}, 刷新率:{p.Refresh_Rate_Hz}Hz"
+
+    def handle_chat(self, user_msg, history=None):
+        return self.handle_chat_generic(user_msg, history, Monitor, self.SCENARIO_KEYWORDS)
+
+
+class GamingConsoleAgent(BaseDbAgent):
+    """游戏主机推荐代理"""
+    
+    SCENARIO_PRESETS = {
+        "console": ["PlayStation", "Xbox", "Nintendo Switch"],
+        "handheld": ["Steam Deck", "ROG Ally", "Legion Go", "Switch"],
+        "retro": ["Anbernic", "Retroid", "Miyoo"]
+    }
+    
+    SCENARIO_KEYWORDS = {
+        "console": ["主机", "电视", "客厅", "3A", "大作"],
+        "handheld": ["掌机", "便携", "移动", "steam", "pc游戏"],
+        "retro": ["复古", "模拟器", "怀旧", "经典"]
+    }
+
+    def get_category_config(self):
+        return CategoryConfig(
+            name="游戏主机",
+            name_en="gaming_console",
+            table_name="gaming_consoles",
+            scoring_dimensions=[
+                ScoringDimension("性能", "Performance_Score", 0.35, "游戏性能"),
+                ScoringDimension("游戏生态", "Ecosystem_Score", 0.3, "游戏库与独占"),
+                ScoringDimension("多媒体", "Media_Score", 0.15, "影音娱乐功能"),
+                ScoringDimension("性价比", "Value_Score", 0.2, "综合性价比")
+            ],
+            scenario_presets=self.SCENARIO_PRESETS,
+            scenario_keywords=self.SCENARIO_KEYWORDS,
+            default_sort_field="Performance_Score",
+            display_fields=["Brand", "Model", "Price", "Storage_GB", "Max_Resolution", "Exclusive_Games_Count"]
+        )
+
+    def get_specific_dimensions(self):
+        return self.get_category_config().scoring_dimensions
+
+    def get_model_class(self):
+        return GamingConsole
+
+    def get_product_info_text(self, p: GamingConsole) -> str:
+        return f"型号:{p.Brand} {p.Model}, 价格:{p.Price}, 存储:{p.Storage_GB}GB, 分辨率:{p.Max_Resolution}, 独占游戏:{p.Exclusive_Games_Count}+"
+
+    def handle_chat(self, user_msg, history=None):
+        return self.handle_chat_generic(user_msg, history, GamingConsole, self.SCENARIO_KEYWORDS)
+
+
+class GPUAgent(BaseDbAgent):
+    """显卡推荐代理"""
+    
+    SCENARIO_PRESETS = {
+        "gaming_4k": ["RTX 4090", "RTX 4080", "RX 7900 XTX", "RX 7900 XT"],
+        "gaming_2k": ["RTX 4070", "RTX 4060 Ti", "RX 7800 XT", "RX 7700 XT"],
+        "gaming_1080p": ["RTX 4060", "RX 7600", "Arc"],
+        "creator": ["RTX 4090", "RTX 4080", "RTX 4070 Ti"]
+    }
+    
+    SCENARIO_KEYWORDS = {
+        "gaming_4k": ["4k", "2160p", "高画质", "光追"],
+        "gaming_2k": ["2k", "1440p", "电竞", "高刷"],
+        "gaming_1080p": ["1080p", "入门", "性价比", "预算"],
+        "creator": ["渲染", "建模", "剪辑", "AI", "创作"]
+    }
+
+    def get_category_config(self):
+        return CategoryConfig(
+            name="显卡",
+            name_en="gpu",
+            table_name="gpus",
+            scoring_dimensions=[
+                ScoringDimension("游戏性能", "Gaming_Score", 0.35, "游戏帧率表现"),
+                ScoringDimension("创作性能", "Creative_Score", 0.25, "渲染与AI加速"),
+                ScoringDimension("功耗散热", "Thermal_Score", 0.2, "温度与噪音"),
+                ScoringDimension("性价比", "Value_Score", 0.2, "综合性价比")
+            ],
+            scenario_presets=self.SCENARIO_PRESETS,
+            scenario_keywords=self.SCENARIO_KEYWORDS,
+            default_sort_field="Gaming_Score",
+            display_fields=["Brand", "Model", "Price", "VRAM_GB", "Chip", "TDP_W"]
+        )
+
+    def get_specific_dimensions(self):
+        return self.get_category_config().scoring_dimensions
+
+    def get_model_class(self):
+        return GPU
+
+    def get_product_info_text(self, p: GPU) -> str:
+        return f"型号:{p.Brand} {p.Model}, 价格:{p.Price}, 显存:{p.VRAM_GB}GB, 芯片:{p.Chip}, 功耗:{p.TDP_W}W"
+
+    def handle_chat(self, user_msg, history=None):
+        return self.handle_chat_generic(user_msg, history, GPU, self.SCENARIO_KEYWORDS)
+

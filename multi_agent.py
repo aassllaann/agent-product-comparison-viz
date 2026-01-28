@@ -48,13 +48,30 @@ class MultiCategoryAgent:
                 PhoneAgent, 
                 LaptopAgent, 
                 HeadphoneAgent, 
-                TabletAgent
+                TabletAgent,
+                SmartwatchAgent,
+                BluetoothSpeakerAgent,
+                MonitorAgent,
+                GamingConsoleAgent,
+                GPUAgent
             )
-            self._agents["camera"] = CameraAgent()
+            # 核心电子设备
             self._agents["phone"] = PhoneAgent()
             self._agents["laptop"] = LaptopAgent()
-            self._agents["headphone"] = HeadphoneAgent()
             self._agents["tablet"] = TabletAgent()
+            
+            # 影音设备
+            self._agents["camera"] = CameraAgent()
+            self._agents["headphone"] = HeadphoneAgent()
+            self._agents["bluetooth_speaker"] = BluetoothSpeakerAgent()
+            
+            # 数码配件
+            self._agents["smartwatch"] = SmartwatchAgent()
+            self._agents["monitor"] = MonitorAgent()
+            
+            # 游戏设备
+            self._agents["gaming_console"] = GamingConsoleAgent()
+            self._agents["gpu"] = GPUAgent()
         except ImportError as e:
             print(f"Warning: Agents load failed: {e}")
     
@@ -80,11 +97,17 @@ class MultiCategoryAgent:
         self, 
         user_msg: str, 
         history: List[Dict] = None
-    ) -> Tuple[Any, Any, Any, Any]:
+    ) -> Tuple[Any, Any, Any, Any, Optional[str]]:
         """
         处理用户对话
         
         自动识别品类并调用对应代理
+        Returns:
+            reasons: 推荐理由列表
+            charts: 可视化图表
+            results: 推荐商品对象列表
+            analyses: 图表分析描述
+            eco_suggestion: 生态系统搭配建议 (NEW)
         """
         # 1. 识别品类
         category_key, category_name = self.detector.detect_category(user_msg)
@@ -100,10 +123,128 @@ class MultiCategoryAgent:
                 self._agents[category_key] = agent
             else:
                 # 最后的兜底
-                return "抱歉，系统暂时无法处理您的请求。", None, None, None
+                return "抱歉，系统暂时无法处理您的请求。", None, None, None, None
         
         # 3. 调用代理处理
-        return agent.handle_chat(user_msg, history)
+        reasons, charts, results, analyses = agent.handle_chat(user_msg, history)
+        
+        # 4. 生态系统增强建议
+        eco_suggestion = None
+        try:
+            from ecosystem_config import get_ecosystem_recommendations
+            eco_info = get_ecosystem_recommendations(user_msg, category_key)
+            
+            # 获取已购设备用于去重 (从 agent 意图中提取)
+            owned_items = []
+            if hasattr(agent, 'last_intent'):
+                owned_items = agent.last_intent.get('owned_items', [])
+            
+            if eco_info["matched_ecosystems"] or eco_info["related_categories"]:
+                parts = []
+                
+                if eco_info["matched_ecosystems"]:
+                    parts.append(f"发现您可能处于【{', '.join(eco_info['matched_ecosystems'])}】场景")
+                
+                # 过滤掉已购设备
+                related_cats = eco_info["related_categories"]
+                if owned_items:
+                    owned_keys = set()
+                    for item_text in owned_items:
+                        item_lower = item_text.lower()
+                        # 尝试寻出品类 key
+                        for cat_key, cat_info in self.detector.KNOWN_CATEGORIES.items():
+                            # 1. 匹配中文名
+                            if item_text in cat_info['name']:
+                                owned_keys.add(cat_key)
+                                continue
+                            # 2. 匹配英文 key
+                            if item_lower in cat_key.lower():
+                                owned_keys.add(cat_key)
+                                continue
+                            # 3. (NEW) 匹配该品类的关键词
+                            # 如果用户说的词（如"ps5"）出现在该品类的关键词里
+                            for kw in cat_info.get('keywords', []):
+                                if kw.lower() == item_lower or item_lower in kw.lower():
+                                    owned_keys.add(cat_key)
+                                    break
+                    
+                    if owned_keys:
+                        print(f"[MultiAgent] 识别出已购品类: {owned_keys} (from '{owned_items}')，将从建议中移除")
+                    
+                    related_cats = [c for c in related_cats if c not in owned_keys]
+                
+                # 只有当存在有效的关联品类时，才生成建议
+                if related_cats:
+                    # 准备 LLM 生成所需的上下文
+                    scenario_str = ", ".join(eco_info['matched_ecosystems']) if eco_info['matched_ecosystems'] else "综合场景"
+                    
+                    related_names = []
+                    for k in related_cats:
+                        name_cn = self.detector.KNOWN_CATEGORIES.get(k, {}).get("name", k)
+                        related_names.append(name_cn)
+                    related_str = "、".join(related_names)
+                    
+                    current_cat_name = self.detector.KNOWN_CATEGORIES.get(category_key, {}).get("name", category_name)
+                    
+                    # 生成自然建议
+                    eco_suggestion = self._generate_eco_suggestion_llm(
+                        user_msg, 
+                        current_cat_name, 
+                        scenario_str, 
+                        related_str,
+                        owned_items
+                    )
+
+        except Exception as e:
+            print(f"Ecosystem logic failed: {e}")
+            import traceback
+            traceback.print_exc()
+            
+        return reasons, charts, results, analyses, eco_suggestion
+
+    def _generate_eco_suggestion_llm(self, user_msg, current_cat, scenario, related_cats, owned_items):
+        """使用 LLM 生成自然的生态搭配建议"""
+        
+        owned_str = ""
+        if owned_items:
+            owned_str = f"用户已拥有：{', '.join(owned_items)}。"
+            
+        system_prompt = f"""
+        你是一个数码生态搭配专家。
+        用户正在关注【{current_cat}】。
+        系统识别用户处于【{scenario}】场景。
+        系统建议的关联品类是：【{related_cats}】。
+        {owned_str}
+        
+        任务：
+        请写一段简短、自然、有吸引力的“生态搭配建议”（50-80字）。
+        
+        要求：
+        1. **不仅仅是列出**关联品类，而是要解释**为什么**这些设备搭配在一起体验更好。
+        2. 结合用户的具体场景（例如游戏、办公、摄影）。
+        3. 语气要像个懂行的朋友给建议，不要太生硬。
+        4. 如果用户已经有部分设备，可以提及如何与其联动。
+        5. 不要使用“发现您处于...场景”这种机器味很重的话，直接切入搭配价值。
+        
+        例子：
+        - 场景：游戏。建议：显示器。
+          -> "有了这台高性能主机，如果再配上一台高刷新的电竞显示器，就能完美释放它的画质潜力，带来丝滑的游戏体验。"
+        - 场景：办公。建议：耳机。
+          -> "经常出差的话，除了轻薄本，搭配一款降噪耳机能帮您在飞机高铁上专注工作，构建移动静谧空间。"
+        """
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=config.LLM_MODEL,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"用户需求：{user_msg}"}
+                ]
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"LLM Eco Suggestion failed: {e}")
+            return f"建议您搭配 {related_cats} 使用，以获得更完整的{scenario}体验。"
     
     def _create_dynamic_agent(
         self, 
@@ -241,11 +382,11 @@ class DynamicAgent(BaseProductAgent):
             return json.loads(content)
         except Exception as e:
             print(f"[DynamicAgent] 意图解析失败: {e}")
-            return {"max_price": 0, "user_needs": "通用", "usage": ""}
+            return {"max_price": 20000, "user_needs": "通用", "usage": ""}
     
     def handle_chat(self, user_msg: str, history: List[Dict] = None):
         """
-        动态代理的对话处理 (无数据版)
+        动态代理的对话处理 (支持 5 参返回)
         """
         category_name = self._config.name
         
@@ -256,11 +397,8 @@ class DynamicAgent(BaseProductAgent):
         # 2. 生成通用建议
         advice = self._generate_general_advice(user_msg, intent)
         
-        # 3. 构造返回
-        # 格式: replies(str), charts(tuple), results(list), chart_analyses(list)
-        # charts, results, chart_analyses 均为空（前端应适配处理）
-        
-        return advice, (None, None, None), [], []
+        # 3. 构造返回 (reasons, charts, results, analyses, eco_suggestion)
+        return [advice], (None, None, None), [], [], None
     
     def _generate_general_advice(self, user_msg: str, intent: dict) -> str:
         """生成通用选购建议"""

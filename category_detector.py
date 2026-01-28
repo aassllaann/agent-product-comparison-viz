@@ -21,74 +21,136 @@ class CategoryDetector:
     并能动态为新品类构建评分体系。
     """
     
-    # 已知品类映射
+    # 已知品类映射（三级分类体系）
+    # 大类：数码产品 -> 中类 -> 小类
     KNOWN_CATEGORIES = {
-        # 数码电子
-        "camera": {
-            "name": "相机",
-            "group": "常用品类",
-            "keywords": ["相机", "单反", "微单", "数码相机", "camera"]
-        },
+        # ========== 中类1: 核心电子设备 (Core Electronics) ==========
         "phone": {
             "name": "手机",
-            "group": "常用品类",
-            "keywords": ["手机", "智能手机", "phone", "iphone", "android"]
-        },
-        "laptop": {
-            "name": "笔记本电脑",
-            "group": "常用品类",
-            "keywords": ["笔记本", "电脑", "laptop", "notebook", "macbook", "游戏本"]
-        },
-        "headphone": {
-            "name": "耳机",
-            "group": "常用品类",
-            "keywords": ["耳机", "headphone", "airpods", "耳麦"]
+            "category_level_2": "核心电子设备",
+            "group": "已有数据",
+            "keywords": ["手机", "智能手机", "phone", "iphone", "android"],
+            "ecosystem_tags": ["移动娱乐", "音频发烧"]
         },
         "tablet": {
             "name": "平板电脑",
-            "group": "常用品类",
-            "keywords": ["平板", "ipad", "tablet", "pad"]
+            "category_level_2": "核心电子设备",
+            "groups": "已有数据",
+            "keywords": ["平板", "ipad", "tablet", "pad", "床上", "追剧", "看电影", "网课"],
+            "ecosystem_tags": ["移动娱乐", "摄影创作"]
+        },
+        "laptop": {
+            "name": "笔记本电脑",
+            "category_level_2": "核心电子设备",
+            "group": "已有数据",
+            "keywords": ["笔记本", "电脑", "laptop", "notebook", "macbook", "游戏本"],
+            "ecosystem_tags": ["移动办公", "专业游戏", "摄影创作"]
         },
         
-        # 护肤美妆
+        # ========== 中类2: 影音设备 (Audio-Visual) ==========
+        "camera": {
+            "name": "相机",
+            "category_level_2": "影音设备",
+            "group": "已有数据",
+            "keywords": ["相机", "单反", "微单", "数码相机", "camera"],
+            "ecosystem_tags": ["摄影创作"]
+        },
+        "headphone": {
+            "name": "耳机",
+            "category_level_2": "影音设备",
+            "group": "已有数据",
+            "keywords": ["耳机", "headphone", "airpods", "耳麦"],
+            "ecosystem_tags": ["移动娱乐", "音频发烧"]
+        },
+        "bluetooth_speaker": {
+            "name": "蓝牙音箱",
+            "category_level_2": "影音设备",
+            "group": "新增数据",
+            "keywords": ["蓝牙音箱", "音箱", "speaker", "便携音箱", "无线音箱"],
+            "ecosystem_tags": ["移动办公", "移动娱乐", "音频发烧"]
+        },
+        
+        # ========== 中类3: 数码配件 (Digital Accessories) ==========
+        "smartwatch": {
+            "name": "智能手表",
+            "category_level_2": "数码配件",
+            "group": "新增数据",
+            "keywords": ["智能手表", "手表", "watch", "apple watch", "运动手表"],
+            "ecosystem_tags": ["移动办公", "移动娱乐"]
+        },
+        "monitor": {
+            "name": "显示器",
+            "category_level_2": "数码配件",
+            "group": "新增数据",
+            "keywords": ["显示器", "monitor", "电脑显示器", "4k显示器", "外接屏"],
+            "ecosystem_tags": ["移动办公", "专业游戏", "摄影创作"]
+        },
+        
+        # ========== 中类4: 游戏设备 (Gaming) ==========
+        "gaming_console": {
+            "name": "游戏主机",
+            "category_level_2": "游戏设备",
+            "group": "新增数据",
+            "keywords": ["游戏主机", "主机", "ps5", "xbox", "switch", "掌机"],
+            "ecosystem_tags": ["专业游戏"]
+        },
+        "gpu": {
+            "name": "显卡",
+            "category_level_2": "游戏设备",
+            "group": "新增数据",
+            "keywords": ["显卡", "gpu", "显卡", "nvidia", "amd", "rtx", "独显"],
+            "ecosystem_tags": ["专业游戏"]
+        },
+        
+        # ========== 其他品类（暂无数据） ==========
         "skincare": {
             "name": "护肤品",
-            "group": "常用品类",
-            "keywords": ["护肤品", "面霜", "精华", "水乳", "洁面", "爽肤水", "乳液", "面膜"]
+            "category_level_2": "美妆护肤",
+            "group": "暂无数据",
+            "keywords": ["护肤品", "面霜", "精华", "水乳", "洁面", "爽肤水", "乳液", "面膜"],
+            "ecosystem_tags": []
         },
         "cosmetics": {
             "name": "化妆品",
-            "group": "常用品类",
-            "keywords": ["化妆品", "口红", "粉底", "眼影", "腮红", "彩妆"]
+            "category_level_2": "美妆护肤",
+            "group": "暂无数据",
+            "keywords": ["化妆品", "口红", "粉底", "眼影", "腮红", "彩妆"],
+            "ecosystem_tags": []
         },
-        
-        # 办公文教
         "stationery": {
             "name": "文具",
-            "group": "常用品类",
-            "keywords": ["文具", "钢笔", "中性笔", "铅笔", "圆珠笔"]
+            "category_level_2": "办公文教",
+            "group": "暂无数据",
+            "keywords": ["文具", "钢笔", "中性笔", "铅笔", "圆珠笔"],
+            "ecosystem_tags": []
         },
         "office": {
             "name": "办公用品",
-            "group": "常用品类",
-            "keywords": ["打印机", "订书机", "复印机", "投影仪"]
+            "category_level_2": "办公文教",
+            "group": "暂无数据",
+            "keywords": ["打印机", "订书机", "复印机", "投影仪"],
+            "ecosystem_tags": []
         },
         "book": {
             "name": "图书",
-            "group": "常用品类",
-            "keywords": ["图书", "小说", "教材", "书籍"]
+            "category_level_2": "办公文教",
+            "group": "暂无数据",
+            "keywords": ["图书", "小说", "教材", "书籍"],
+            "ecosystem_tags": []
         },
-        
-        # 生活百货
         "appliance": {
             "name": "小家电",
-            "group": "常用品类",
-            "keywords": ["吹风机", "电饭煲", "烤箱", "榨汁机", "咖啡机", "空气炸锅", "冰箱", "洗衣机"]
+            "category_level_2": "生活百货",
+            "group": "暂无数据",
+            "keywords": ["吹风机", "电饭煲", "烤箱", "榨汁机", "咖啡机", "空气炸锅", "冰箱", "洗衣机"],
+            "ecosystem_tags": []
         },
         "sports": {
             "name": "运动装备",
-            "group": "常用品类",
-            "keywords": ["跑鞋", "球拍", "跑步机", "哑铃", "篮球", "足球"]
+            "category_level_2": "生活百货",
+            "group": "暂无数据",
+            "keywords": ["跑鞋", "球拍", "跑步机", "哑铃", "篮球", "足球"],
+            "ecosystem_tags": []
         },
     }
     
@@ -130,8 +192,10 @@ class CategoryDetector:
         
         已知品类: {known_list}
         
-        如果用户需求匹配已知品类，返回对应的英文 key。
-        如果是新品类，返回一个合适的英文 key 和中文名称。
+        【规则】：
+        1. **优先匹配**: 如果用户需求（即使模糊）能对应到已知品类，必须返回对应的已知英文 key。例如“在床上看电影”应匹配到 tablet (平板)，“出差办公装备”应匹配到 laptop (笔记本)。
+        2. **复合需求**: 如果用户提到多个品类（如“办公和听歌”），请返回最核心的一个（如 laptop）。
+        3. **新品类**: 仅当需求完全不属于已知品类时，才返回 is_new: true 和自定义 key。
         
         输出 JSON: {{"category_key": "英文标识", "category_name": "中文名称", "is_new": true/false}}
         """

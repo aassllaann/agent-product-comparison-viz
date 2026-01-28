@@ -1,0 +1,36 @@
+Brand,Model,Price,Year,image_file,Screen_Size_in,Battery_Days,Waterproof_Rating,OS,Weight_g,Health_Features,Battery_Score,Health_Score,Smart_Score,Value_Score
+Apple,Apple Watch Ultra 2,6299,2023,,1.92,3,100m,watchOS,61.4,心率/血氧/心电图/体温/跌倒检测,85,95,95,75
+Apple,Apple Watch Series 9,3199,2023,,1.69,1.5,50m,watchOS,38.7,心率/血氧/心电图/跌倒检测,78,92,94,82
+Apple,Apple Watch SE 2,1999,2022,,1.57,1.5,50m,watchOS,32.9,心率/跌倒检测,75,80,88,88
+华为,WATCH Ultimate,5999,2023,,1.5,14,100m,HarmonyOS,76,心率/血氧/体温/潜水,92,92,90,78
+华为,WATCH GT 4,1288,2023,,1.43,14,50m,HarmonyOS,48,心率/血氧/睡眠/压力,95,90,85,92
+华为,WATCH 4 Pro,2999,2023,,1.5,5,50m,HarmonyOS,54,心率/血氧/心电图/体温,88,94,88,86
+华为,WATCH FIT 3,799,2024,,1.82,10,50m,HarmonyOS,26,心率/血氧/睡眠,90,85,78,95
+小米,Watch S3,1299,2024,,1.43,15,50m,HyperOS,44,心率/血氧/睡眠/压力,96,88,82,94
+小米,Watch 2 Pro,1299,2023,,1.43,14,50m,MIUI Watch,46,心率/血氧/睡眠,94,86,80,92
+小米,Redmi Watch 4,499,2023,,1.97,20,50m,HyperOS,47,心率/血氧/睡眠,98,82,75,96
+OPPO,Watch 4 Pro,2499,2023,,1.91,5,50m,ColorOS Watch,65,心率/血氧/心电图/睡眠,86,90,85,85
+vivo,Watch 3,1499,2023,,1.43,14,50m,BlueOS,52,心率/血氧/睡眠/压力,94,88,82,90
+荣耀,WATCH 4,1299,2024,,1.75,14,50m,HarmonyOS,48,心率/血氧/睡眠,94,88,80,92
+三星,Galaxy Watch 6 Classic,3299,2023,,1.5,2,50m,Wear OS,59,心率/血氧/心电图/体脂,80,90,90,82
+三星,Galaxy Watch 6,2499,2023,,1.5,2,50m,Wear OS,33.3,心率/血氧/心电图,78,88,88,85
+三星,Galaxy Watch FE,1299,2023,,1.4,2,50m,Wear OS,26.6,心率/血氧,75,82,85,90
+Garmin,Fenix 7X Pro,7880,2023,,1.4,28,100m,Garmin OS,89,心率/血氧/海拔/潜水,95,96,75,72
+Garmin,Forerunner 965,4980,2023,,1.4,23,50m,Garmin OS,53,心率/血氧/训练状态,92,94,70,78
+Garmin,Venu 3,3680,2023,,1.4,14,50m,Garmin OS,47,心率/血氧/睡眠/压力,88,92,75,82
+Garmin,Instinct 2,2580,2022,,0.9,28,100m,Garmin OS,52,心率/血氧/海拔,96,88,65,88
+Amazfit,GTR 4,999,2022,,1.43,14,50m,Zepp OS,48,心率/血氧/睡眠/压力,94,85,75,94
+Amazfit,T-Rex Ultra,3999,2023,,1.39,32,100m,Zepp OS,89.2,心率/血氧/潜水/海拔,98,90,70,82
+Amazfit,GTS 4,899,2022,,1.75,8,50m,Zepp OS,27,心率/血氧/睡眠,85,82,72,95
+TicWatch,Pro 5,2299,2023,,1.43,3.5,IP68,Wear OS,44.4,心率/血氧/睡眠,82,85,88,88
+Fitbit,Sense 2,2298,2022,,1.58,6,50m,Fitbit OS,37.6,心率/血氧/心电图/压力,88,92,82,82
+Suunto,Race,4990,2023,,1.43,26,100m,Suunto OS,83,心率/血氧/训练负荷,94,94,68,75
+Polar,Vantage V3,4390,2023,,1.39,8,100m,Polar OS,53,心率/血氧/训练状态,86,95,65,78
+COROS,PACE 3,1699,2023,,1.2,24,50m,COROS OS,30,心率/血氧,92,90,60,90
+Withings,ScanWatch 2,2988,2024,,1.65,30,50m,Withings OS,58,心率/血氧/心电图/体温,96,94,70,80
+佳明,Lily 2,1580,2023,,1.1,5,50m,Garmin OS,24,心率/血氧/压力,82,85,75,85
+Apple,Apple Watch Ultra 3,6999,2024,,1.92,4,100m,watchOS,62,心率/血氧/心电图/体温/血压,88,96,96,73
+华为,WATCH D2,2999,2024,,1.43,7,50m,HarmonyOS,51,心率/血氧/心电图/血压,90,95,88,85
+三星,Galaxy Watch 7 Ultra,3999,2024,,1.5,3,100m,Wear OS,60,心率/血氧/心电图/体脂/血压,82,92,92,80
+小米,Watch S4,1499,2025,,1.43,16,50m,HyperOS,45,心率/血氧/睡眠/压力/体温,96,90,85,92
+Garmin,Fenix 8,8880,2025,,1.4,30,100m,Garmin OS,88,心率/血氧/海拔/潜水/训练,96,97,78,70
