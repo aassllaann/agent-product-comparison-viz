@@ -178,73 +178,56 @@ class BaseDbAgent(BaseProductAgent):
                 reasons.append(f"这款{item.Brand} {item.Model}性能出色，非常适合您的需求。")
         return reasons
 
-    def _generate_chart_analyses(self, results, intent):
+    def _generate_visualization(self, results, intent):
         """
-        生成详细的图表分析文案 (通用版)
+        统一生成可视化图表和分析
         """
-        analyses = []
-        if not results:
-            return analyses
-            
         config = self.get_category_config()
         
-        # --- 1. 雷达图分析 (首选推荐画像) ---
-        cam = results[0]  # 第一款是首选
-        radar_dims = config.scoring_dimensions
+        # 1. 生成图表
+        radar_dims = [(d.name, d.field, 100) for d in config.scoring_dimensions]
+        compare_dims = [(d.name, d.field) for d in config.scoring_dimensions[:3]]
         
+        charts = (
+            visualizer.draw_radar(results, radar_dims),
+            visualizer.draw_comparison(results, intent.get('sort_field', config.default_sort_field)),
+            visualizer.draw_multi_dimension_compare(results, compare_dims)
+        )
+        
+        # 2. 生成分析文案
+        analyses = []
+        if not results:
+            return charts, analyses
+            
+        # --- 雷达图分析 ---
+        top_item = results[0]
+        radar_dims_conf = config.scoring_dimensions
         scores_desc = []
         high_scores = []
-        
-        for dim in radar_dims:
-            score = getattr(cam, dim.field, 0) or 0
+        for dim in radar_dims_conf:
+            score = getattr(top_item, dim.field, 0) or 0
             scores_desc.append(f"{dim.name}评分 {score}")
-            if score >= 80:
-                high_scores.append(dim.name)
+            if score >= 80: high_scores.append(dim.name)
         
-        radar_detail = (
-            f"首选推荐 {cam.Brand} {cam.Model} 的各项指标如下：{', '.join(scores_desc)}。"
-            f" 该产品在{', '.join(high_scores) if high_scores else '各项指标'}方面表现{'优异' if high_scores else '均衡'}。"
-        )
+        radar_detail = f"首选推荐 {top_item.Brand} {top_item.Model} 指标：{', '.join(scores_desc)}。在该项表现越优异，整体素质越高。"
         analyses.append(radar_detail)
         
-        # --- 2. 核心指标对比分析 ---
+        # --- 核心指标对比 ---
         sort_field = intent.get('sort_field', config.default_sort_field)
-        # 找到对应的中文名
-        sort_name = sort_field
-        for d in config.scoring_dimensions:
-            if d.field == sort_field:
-                sort_name = d.name
-                break
-                
-        top3_scores = []
-        for c in results:
-            val = getattr(c, sort_field, 0) or 0
-            top3_scores.append(f"{c.Brand} {c.Model}: {val}")
-        
-        compare_detail = (
-            f"在您最关注的【{sort_name}】维度上，前三款推荐产品的得分分别为：{'；'.join(top3_scores)}。"
-            "分值越高代表该项能力越强。"
-        )
+        sort_name = next((d.name for d in config.scoring_dimensions if d.field == sort_field), sort_field)
+        top3_scores = [f"{c.Model}: {getattr(c, sort_field, 0) or 0}" for c in results]
+        compare_detail = f"关键指标【{sort_name}】对比：{'；'.join(top3_scores)}。"
         analyses.append(compare_detail)
         
-        # --- 3. 多维优势分析 ---
-        # 取前3个维度进行分析
-        compare_dims = config.scoring_dimensions[:3]
+        # --- 多维优势分析 ---
         highlights = []
-        
-        for dim in compare_dims:
-            # 找出该维度得分最高的
-            best_in_dim = max(results, key=lambda c: getattr(c, dim.field, 0) or 0)
-            score = getattr(best_in_dim, dim.field, 0) or 0
-            highlights.append(f"{best_in_dim.Model} 在{dim.name}方面表现最佳({score}分)")
-            
-        multi_dim_detail = (
-            f"综合多维能力分析：{'；'.join(highlights)}。"
-            "您可以根据具体的使用场景权衡选择。"
-        )
+        for dim in config.scoring_dimensions[:3]:
+            best = max(results, key=lambda c: getattr(c, dim.field, 0) or 0)
+            highlights.append(f"{best.Model} 在{dim.name}表现最佳")
+        multi_dim_detail = f"综合分析：{'；'.join(highlights)}。您可以根据具体需求权衡选择。"
         analyses.append(multi_dim_detail)
         
-        return analyses
+        return charts, analyses
 
     def handle_chat_generic(self, user_msg, history, model_class, keyword_map):
         """通用的对话处理流程"""
@@ -299,21 +282,7 @@ class BaseDbAgent(BaseProductAgent):
         # 5. 生成结果
         reasons = self._get_individual_reasons(results, user_msg, intent, history)
         
-        # 准备可视化参数
-        # Radar: [(Label, Field, MaxVal)] (假设评分为100分制)
-        radar_dims = [(d.name, d.field, 100) for d in config.scoring_dimensions]
-        
-        # Multi-Dim Compare: [(Label, Field)]
-        compare_dims = [(d.name, d.field) for d in config.scoring_dimensions[:3]]
-        
-        charts = (
-            visualizer.draw_radar(results, radar_dims),
-            visualizer.draw_comparison(results, intent.get('sort_field', config.default_sort_field)),
-            visualizer.draw_multi_dimension_compare(results, compare_dims)
-        )
-        
-        analyses = self._generate_chart_analyses(results, intent)
-        
+        charts, analyses = self._generate_visualization(results, intent)
         return reasons, charts, results, analyses
 
     def __del__(self):
@@ -516,9 +485,7 @@ class HeadphoneAgent(BaseDbAgent):
             results = self.db.query(Headphone).order_by(desc(Headphone.Price)).limit(3).all()
             if results:
                 reasons = ["抱歉，根据具体要求暂未找到匹配，但为您精选了以下几款热门的高端耳机供您参考："]
-                # 重新生成图表
-                import visualizer
-                charts, analyses = visualizer.generate_comparison_chart(results, self.get_category_config().scoring_dimensions)
+                charts, analyses = self._generate_visualization(results, {"sort_field": "Sound_Score"})
                 return reasons, charts, results, analyses
                 
         return result

@@ -1,0 +1,293 @@
+/* ═══════════════════════════════════════════════════════════
+   SOFT POP / MACARON DESIGN SYSTEM
+   Theme: Vibrant yet Soft, Clear, Lively but Balanced
+═══════════════════════════════════════════════════════════ */
+
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;600;800&display=swap');
+
+:root {
+    /* Backgrounds - 更加透亮，去掉了灰底 */
+    --color-bg-light: #FAFAFF;
+    --color-bg-white: #FFFFFF;
+    /* 渐变背景：极淡的粉紫过渡，干净清爽 */
+    --bg-gradient: linear-gradient(135deg, #FFF5F9 0%, #F4F1FF 100%);
+
+    /* Accents - 核心修改：提亮，去除灰调，接近马卡龙色 */
+    --color-accent-purple: #9F7AEA;
+    /* 薰衣草紫 (比莫兰迪亮，比霓虹柔) */
+    --color-accent-pink: #E86EA8;
+    /* 柔粉色 (不刺眼，但有血色) */
+    --color-accent-deep: #7E3AF2;
+    /* 深紫用于强调文字，保证清晰度 */
+
+    /* 按钮渐变：更有活力的过渡 */
+    --gradient-primary: linear-gradient(135deg, #F086B6 0%, #9F7AEA 100%);
+
+    /* Text - 回归稍深的蓝灰色，保证在亮背景下的对比度 */
+    --text-primary: #374151;
+    /* 稍微带一点暖调的深灰 */
+    --text-secondary: #6B7280;
+    /* 标准中灰，干净利落 */
+    --text-highlight: #7E3AF2;
+    /* 与深色强调色一致 */
+
+    /* Glass/Cards */
+    --card-bg: rgba(255, 255, 255, 0.85);
+    /* 提高白度，减少透明感带来的浑浊 */
+    --card-border: rgba(232, 110, 168, 0.2);
+    /* 清透的粉色边框 */
+
+    /* 阴影带一点点颜色，显得更通透 */
+    --shadow-soft: 0 8px 24px rgba(159, 122, 234, 0.08);
+    --radius-md: 16px;
+    --radius-lg: 24px;
+}
+
+/* Global Reset */
+html,
+body,
+[class*="css"] {
+    font-family: 'Inter', sans-serif !important;
+    color: var(--text-primary);
+    background: transparent !important;
+}
+
+.stApp {
+    background: var(--bg-gradient) !important;
+    background-attachment: fixed !important;
+}
+
+/* ----------------------------------------------------------------
+   CARD STYLING
+---------------------------------------------------------------- */
+
+/* Main Containers */
+.block-container {
+    padding-top: 3rem !important;
+}
+
+/* Hero & Forms */
+[data-testid="stForm"],
+.hero-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 24px;
+}
+
+.section-header {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.0rem;
+    font-weight: 800;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 2px solid rgba(159, 122, 234, 0.15);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+/* Input Fields */
+.stTextInput>div>div {
+    background: #FFFFFF !important;
+    border: 1px solid #E9D5FF !important;
+    /* 浅紫色边框 */
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+}
+
+.stTextInput>div>div:focus-within {
+    border-color: var(--color-accent-purple) !important;
+    box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.2);
+    /* 薰衣草色光环 */
+}
+
+/* Buttons */
+.stButton>button {
+    background: var(--gradient-primary) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    height: 44px;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 14px rgba(232, 110, 168, 0.3);
+    /* 粉色阴影，提升活力 */
+}
+
+.stButton>button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(232, 110, 168, 0.4);
+    filter: brightness(1.05);
+    /* 悬停时稍微变亮 */
+}
+
+.stButton>button[kind="secondary"] {
+    background: white !important;
+    color: var(--color-accent-deep) !important;
+    border: 1px solid var(--color-accent-purple) !important;
+    box-shadow: 0 2px 5px rgba(159, 122, 234, 0.05) !important;
+}
+
+/* Product Cards */
+.product-card {
+    background: white;
+    border: 1px solid rgba(232, 110, 168, 0.15);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent-pink);
+    box-shadow: 0 12px 24px rgba(232, 110, 168, 0.15);
+}
+
+.product-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.product-price {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-accent-deep);
+    margin-bottom: 12px;
+}
+
+.product-price .currency {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Tags - 关键修改：背景色变亮，看起来更清爽 */
+.score-tag {
+    background: #F3E8FF;
+    /* 薰衣草浅紫 */
+    color: #7E3AF2;
+    /* 清晰的紫色 */
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 6px;
+    border: 1px solid rgba(126, 58, 242, 0.1);
+}
+
+.spec-tag {
+    background: #FFF0F5;
+    /* 樱花粉 */
+    color: #D61F69;
+    /* 玫红色 (不灰也不荧光) */
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+
+.spec-tag b {
+    color: #BE185D;
+}
+
+/* Analysis Boxes */
+.analysis-box {
+    background: #FDF4FF;
+    /* 极浅的紫 */
+    border-left: 3px solid var(--color-accent-purple);
+    padding: 16px;
+    border-radius: 8px;
+    color: var(--text-primary);
+    /* 文字颜色加深，提高易读性 */
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-top: 12px;
+}
+
+/* Chart Cards */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: white;
+    border: 1px solid rgba(159, 122, 234, 0.15) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    padding: 16px !important;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"]:hover {
+    border-color: var(--color-accent-purple) !important;
+    box-shadow: 0 10px 25px rgba(159, 122, 234, 0.12);
+}
+
+.reason-box {
+    background: #FAFAFA;
+    border: 1px dashed #D8B4FE;
+    /* 虚线框带一点点紫色 */
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 12px;
+}
+
+/* Chat/Logs */
+[data-testid="stChatMessage"] {
+    background: #FFFFFF !important;
+    border: 1px solid #F3F0FF !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-testid="stChatMessageContent"] {
+    color: var(--text-primary);
+}
+
+/* Chat Avatar Styling */
+[data-testid="stChatMessageAvatarBackground"] {
+    background-color: #F3E8FF !important;
+    border: 1px solid rgba(159, 122, 234, 0.3);
+    color: var(--color-accent-deep) !important;
+}
+
+/* Eco Suggestion */
+.eco-box-title {
+    color: #D61F69;
+    /* 更有活力的粉色 */
+    font-weight: 700;
+    font-family: 'Manrope', sans-serif;
+    margin-bottom: 8px;
+}
+
+.eco-box-content {
+    background: linear-gradient(to right, #FFF5F7, #FFFFFF);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(232, 110, 168, 0.2);
+    color: var(--text-primary);
+}
+
+/* Chart Text */
+.chart-title {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Hide Decorations */
+#MainMenu,
+footer,
+header {
+    visibility: hidden;
+}

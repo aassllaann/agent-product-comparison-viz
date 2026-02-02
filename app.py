@@ -3,51 +3,19 @@ from multi_agent import MultiCategoryAgent
 from category_detector import CategoryDetector
 import os
 
-# 1. 页面配置
+# 1. Page Configuration
 st.set_page_config(
-    page_title="AI 智能选购助手", 
-    layout="wide", 
-    page_icon="🛒"
+      page_title="AI 智能选购助手", 
+      layout="wide", 
+      page_icon="◉"
 )
 
-# 2. 自定义 CSS
-st.markdown("""
-    <style>
-    [data-testid="stMetricValue"] { font-size: 1.4rem; color: #008080; }
-    .main .block-container { padding: 0.5rem 2rem; max-width: 100%; }
-    h1 { margin-top: -1.5rem; padding-top: 0; }
-    .chat-container { 
-        height: 400px; 
-        overflow-y: auto; 
-        border: 1px solid #e0e0e0; 
-        border-radius: 8px; 
-        padding: 1rem;
-        background: #fafafa;
-    }
-    .product-card {
-        background: #fff;
-        border-radius: 12px;
-        padding: 16px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        margin-bottom: 1rem;
-    }
-    .reason-box {
-        background: linear-gradient(90deg, #e8f4f8 0%, #f8f9fa 100%);
-        border-radius: 8px;
-        padding: 12px;
-        margin-top: 0.5em;
-        font-size: 0.9em;
-    }
-    .section-header {
-        font-size: 1.2em;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.8em;
-        padding-bottom: 0.5em;
-        border-bottom: 2px solid #008080;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# 2. Premium Design System CSS
+if os.path.exists("style.css"):
+    with open("style.css", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+else:
+    st.warning("style.css not found. Please ensure it exists in the same directory.")
 
 # 3. 初始化状态
 if 'agent' not in st.session_state:
@@ -70,17 +38,49 @@ if 'last_eco_suggestion' not in st.session_state:
 # 初始化检测器
 detector = CategoryDetector()
 
-# 品类图标
-CATEGORY_ICONS = {
-    "camera": "📷", "phone": "📱", "headphone": "🎧", "laptop": "💻", "tablet": "📟",
-    "smartwatch": "⌚", "bluetooth_speaker": "🔊", "monitor": "🖥️", 
-    "gaming_console": "🎮", "gpu": "🎨",
-    "skincare": "🧴", "cosmetics": "💄", "stationery": "✏️", "office": "🖨️",
-    "appliance": "🔌", "sports": "👟", "book": "📚"
+# --- PROCESSING LOGIC (MOVED TO TOP) ---
+# Check for 'current_prompt' from the form submission.
+# This runs BEFORE the layout logic below, so 'last_results' will be populated when referenced.
+if 'current_prompt' in st.session_state and st.session_state.current_prompt:
+    prompt = st.session_state.current_prompt
+    # Consume prompt immediately
+    del st.session_state.current_prompt
+    
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    cat_key, cat_name = detector.detect_category(prompt)
+    st.session_state.current_category = cat_name
+    
+    # Use spinner at the top or a placeholder if preferred, 
+    # but top-level spinner is fine for this flow.
+    with st.spinner("正在分析您的需求并检索数据..."):
+        try:
+            history = [{"role": m["role"], "content": str(m["content"])} for m in st.session_state.messages[-6:] if m["role"] != "user" or m["content"] != prompt] 
+            # Note: history filtering above is just a safety, usually [-6:] is fine. 
+            # Simplified history fetching:
+            history = [{"role": m["role"], "content": str(m["content"])} for m in st.session_state.messages[-6:]]
+            
+            reply, charts, results, analyses, eco_suggestion = st.session_state.agent.handle_chat(prompt, history=history)
+            
+            st.session_state.last_results = results
+            st.session_state.last_charts = charts
+            st.session_state.last_analyses = analyses
+            st.session_state.last_reasons = reply if isinstance(reply, list) else None
+            st.session_state.last_eco_suggestion = eco_suggestion
+            st.session_state.messages.append({"role": "assistant", "content": reply})
+        except Exception as e:
+            st.error(f"Error executing agent: {e}")
+
+
+# 品类标签 (保持极简设计)
+CATEGORY_LABELS = {
+    "camera": "相机", "phone": "手机", "headphone": "耳机", 
+    "laptop": "笔记本", "tablet": "平板", "smartwatch": "智能手表", 
+    "bluetooth_speaker": "音箱", "monitor": "显示器", 
+    "gaming_console": "主机", "gpu": "显卡"
 }
 
-def get_icon(cat):
-    return CATEGORY_ICONS.get(cat, "🛒")
+def get_label(cat):
+    return CATEGORY_LABELS.get(cat, "商品")
 
 def render_product_card(product, reason=None):
     """渲染商品卡片"""
@@ -124,22 +124,22 @@ def render_product_card(product, reason=None):
             }
         elif class_name == 'Headphone':
             specs = {
-                '耳机类型': getattr(product, 'Type', '-'),
-                '主动降噪': '✅' if getattr(product, 'ANC', False) else '❌',
-                '续航时间': f"{getattr(product, 'Battery_Hours', 0)}h"
+                '类型': getattr(product, 'Type', '-'),
+                '降噪': '是' if getattr(product, 'ANC', False) else '否',
+                '续航': f"{getattr(product, 'Battery_Hours', 0)}h"
             }
         elif class_name == 'Camera':
             specs = {
                 '像素': f"{getattr(product, 'Total_megapixels', 0)}MP",
                 'ISO': getattr(product, 'Max_ISO', 0),
                 '重量': f"{getattr(product, 'Weight_g', 0)}g", 
-                '4K': '✅' if getattr(product, 'Supports_4K', False) else '❌'
+                '4K': '是' if getattr(product, 'Supports_4K', False) else '否'
             }
         elif class_name == 'Tablet':
              specs = {
                 '处理器': getattr(product, 'Processor', '-'),
                 '屏幕': f"{getattr(product, 'Screen_Size_in', 0)}英寸",
-                '手写笔': '✅' if getattr(product, 'Stylus_Support', False) else '❌'
+                '手写笔': '是' if getattr(product, 'Stylus_Support', False) else '否'
              }
         elif class_name == 'BluetoothSpeaker' or class_name == 'Bluetooth_Speaker':
             specs = {
@@ -175,188 +175,159 @@ def render_product_card(product, reason=None):
              # 默认/Fallback
              specs = {'ID': getattr(product, 'id', '-')}
 
-    st.markdown(f"<div class='product-card'>", unsafe_allow_html=True)
-    st.markdown(f"**{brand} {model}**")
-    st.markdown(f"<div style='color:#008080;font-weight:bold;font-size:1.1em'>💰 ¥{int(price)}</div>", unsafe_allow_html=True)
-    
-    # 评分展示
+    # Build the complete HTML string
+    score_html = ""
     if scores:
-        # 选取前3个关键评分
         top_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:3]
-        score_tags = "".join([f"<span style='background:#e0f2f1;color:#00695c;padding:2px 8px;border-radius:12px;margin-right:4px;font-size:0.8em'>{k} {v}</span>" for k, v in top_scores])
-        st.markdown(f"<div style='margin: 8px 0;'>{score_tags}</div>", unsafe_allow_html=True)
+        score_html = f"<div style='margin: 12px 0;'>{''.join([f'<span class=score-tag>{k} {v}</span>' for k, v in top_scores])}</div>"
     
-    # 规格展示 (不折叠，使用 Tag 样式)
+    spec_html_str = ""
     if specs:
-        st.markdown("<div style='margin-bottom:8px;display:flex;flex-wrap:wrap;gap:4px;'>", unsafe_allow_html=True)
-        for k, v in specs.items():
-            st.markdown(f"<span style='background:#f5f5f5;padding:2px 6px;border-radius:4px;font-size:0.85em;color:#555'><b>{k}</b>: {v}</span>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        spec_html_str = f"<div style='margin-bottom:12px;'>{''.join([f'<span class=spec-tag><b>{k}</b> {v}</span>' for k, v in specs.items()])}</div>"
     
-    # 推荐理由
+    reason_html = ""
     if reason:
         import re
-        html_reason = reason.replace('\n', '<br>')
-        html_reason = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', html_reason)
-        st.markdown(f"<div class='reason-box'>💡 {html_reason}</div>", unsafe_allow_html=True)
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+        r_text = reason.replace('\n', '<br>')
+        r_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', r_text)
+        reason_html = f"<div class='reason-box'>{r_text}</div>"
 
-# --- 主界面：左右分栏 ---
-st.title("🛒 数码产品智能导购 · 生态推荐")
-st.caption("💡 支持 10 大品类：📷 相机 | 📱 手机 | 💻 笔记本 | 🎧 耳机 | 📟 平板 | ⌚ 智能手表 | 🔊 音箱 | 🖥️ 显示器 | 🎮 主机 | 🎨 显卡")
+    card_html = f"""
+    <div class='product-card'>
+        <div class='product-title'>{brand} {model}</div>
+        <div class='product-price'><span class='currency'>¥</span> {int(price):,}</div>
+        {score_html}
+        {spec_html_str}
+        {reason_html}
+    </div>
+    """
+    st.markdown(card_html, unsafe_allow_html=True)
 
-# 左侧：对话区 | 右侧：推荐结果区
-left_col, right_col = st.columns([0.6, 2.2]) # 调整比例，对话栏再窄一些
+# --- DASHBOARD LAYOUT ---
+# 1. HERO SECTION: REQUIREMENT INPUT
+hero_container = st.container()
+with hero_container:
+    # 使用 st.form 配合 CSS [data-testid="stForm"] 自动获得玻璃拟态样式
+    with st.form("consultation_form"):
+        st.markdown("<div class='section-header'>咨询中心 · CONSULTATION CENTER</div>", unsafe_allow_html=True)
+        # 使用 columns 让输入框和按钮在一行或协调布局
+        c1, c2 = st.columns([5, 1])
+        with c1:
+            prompt_input = st.text_input("请输入您的选购需求", placeholder="例如：推荐一款 5000 元左右的适合 Vlog 的相机...", label_visibility="collapsed")
+        with c2:
+            submitted = st.form_submit_button("开始咨询", use_container_width=True)
 
-# 左侧：对话区
-with left_col:
-    st.markdown("<div class='section-header'>💬 智能咨询</div>", unsafe_allow_html=True)
-    
-    # 对话容器
-    chat_container = st.container(height=500) # 使用固定高度容器
-    
-    with chat_container:
+    if submitted and prompt_input:
+        st.session_state.current_prompt = prompt_input
+        st.rerun()
+
+# 2. MAIN DASHBOARD AREA
+col_main, col_side = st.columns([4, 1], gap="medium") 
+
+# --- LEFT COLUMN: RESULTS & ANALYSIS ---
+with col_main:
+    cat_name = st.session_state.current_category or "商品"
+    main_container = st.container()
+    with main_container:
+        st.markdown(f"<div class='section-header'>选购建议 · {cat_name} 推荐结果</div>", unsafe_allow_html=True)
+        
+        results = st.session_state.last_results
+        reasons = st.session_state.last_reasons
+        charts = st.session_state.last_charts
+        analyses = st.session_state.last_analyses
+        
+        if results:
+            # 商品卡格
+            cols = st.columns(3 if len(results) >= 3 else len(results))
+            for idx, (col, product) in enumerate(zip(cols, results[:3])):
+                with col:
+                    reason = reasons[idx] if reasons and idx < len(reasons) else None
+                    render_product_card(product, reason)
+            
+            # 图表与深度分析
+            if charts and any(charts):
+                st.markdown("<hr>", unsafe_allow_html=True)
+                st.markdown("<div class='chart-section-title'>深度对比分析报告</div>", unsafe_allow_html=True)
+                
+                valid_charts = [c for c in charts if c is not None]
+                if valid_charts:
+                    chart_cols = st.columns(len(valid_charts))
+                    titles = ["综合能力雷达", "核心得分分布", "性价比指数"]
+                    
+                    for i, (col, chart) in enumerate(zip(chart_cols, valid_charts)):
+                        with col:
+                            # Use Streamlit native container with border for the card effect
+                            with st.container(border=True):
+                                title = titles[i] if i < len(titles) else "分析视图"
+                                st.markdown(f"<div class='chart-title' style='text-align:center;'>{title}</div>", unsafe_allow_html=True)
+                                st.plotly_chart(chart, use_container_width=True, config={'displayModeBar': False})
+                                
+                                if analyses and i < len(analyses):
+                                    clean_text = analyses[i].replace("📊 ", "").replace("🏆 ", "").replace("💰 ", "")
+                                    st.markdown(f"<div class='analysis-box'>{clean_text}</div>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"""<div class='hero-card'>
+<h3 style='margin-bottom: 12px; color: var(--color-accent-purple);'>👋 您的专业数码选购顾问</h3>
+<p style='color: var(--text-secondary); font-size: 0.95rem;'>请在上方输入您的选购需求，系统将为您生成深度个性化对标仪表盘。</p>
+<div style='background: rgba(255,255,255,0.6); border-radius: 12px; padding: 20px; margin-top: 15px; border: 1px solid rgba(159, 122, 234, 0.15);'>
+<p style='margin-bottom: 10px;'><b style='color: var(--color-accent-pink);'>✨ 核心功能亮点：</b></p>
+<ul style='font-size: 0.85rem; line-height: 1.7; color: var(--text-primary); margin-left: -15px;'>
+<li><b>🎯 智能对标推荐</b>：基于预算与核心用途，从海量数据库中深度筛选匹配产品。</li>
+<li><b>📊 多维量化分析</b>：实时生成能力雷达图、关键参数对比及客观性价比指数。</li>
+<li><b>🔗 生态链协同</b>：独家提供跨品类（如：相机 + 镜头 + 稳定器）的场景化搭配建议。</li>
+<li><b>⚠️ 实时风险避雷</b>：智能识别并标注产品的潜在短板，大幅降低您的决策溢价。</li>
+</ul>
+</div>
+<div style='margin-top: 20px;'>
+<p style='font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;'><b>当前支持品类：</b></p>
+<div style='display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: var(--color-accent-deep);'>
+<span>📷 相机</span> | <span>📱 手机</span> | <span>🎧 耳机</span> | <span>💻 笔记本</span> | 
+<span>📒 平板</span> | <span>⌚ 智能手表</span> | <span>🔊 音箱</span> | <span>🖥️ 显示器</span> | 
+<span>🎮 主机</span> | <span>⚡ 显卡</span>
+</div>
+</div>
+</div>""", unsafe_allow_html=True)
+        
+    # 生态系统建议 (独立容器)
+    eco_suggestion = st.session_state.last_eco_suggestion
+    if eco_suggestion:
+        eco_container = st.container()
+        with eco_container:
+            st.markdown(f"""
+                <div class='eco-box-title'>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    全场景生态链建议
+                </div>
+                <div class='eco-box-content'>{eco_suggestion}</div>
+            """, unsafe_allow_html=True)
+
+# --- RIGHT COLUMN: CONSULTANT LOGS ---
+with col_side:
+    side_container = st.container()
+    with side_container:
+        st.markdown("<div class='section-header'>咨询记录 · ANALYST NOTES</div>", unsafe_allow_html=True)
+        
+        # 对话内容
         if not st.session_state.messages:
-            st.info("""👋 你好！我是你的**数码生态选购助手**。
-            
-**🎯 核心功能：**
-• 智能推荐最适合你的产品
-• 提供生态化搭配建议，让设备发挥更大价值
-• 支持多轮对话，理解你的真实场景
-
-**💬 快速开始：**
-- *推荐一款适合Vlog的相机，预算5000左右*
-- *经常出差，需要轻薄本和配套耳机*
-- *想玩《黑神话》，帮我选主机和显示器*
-
-支持品类：📷 相机 | 📱 手机 | 💻 笔记本 | 🎧 耳机 | 📟 平板 | ⌚ 智能手表 | 🔊 音箱 | 🖥️ 显示器 | 🎮 主机 | 🎨 显卡
-
-输入你的需求，开始智能选购吧！""")
-            
-        # 显示历史消息
+            st.caption("暂无记录")
+        
         for msg in st.session_state.messages:
             role = msg["role"]
             content = msg["content"]
-            
-            if role == "user":
-                st.chat_message("user").write(content)
-            else:
-                # 助手消息只显示简短摘要
-                with st.chat_message("assistant"):
-                    if isinstance(content, list):
-                        st.write(f"已为您推荐 {len(content)} 款商品，请看右侧详情 👉")
-                    else:
-                        st.write(content)
-    
-    # 输入区域
-    prompt = st.chat_input("输入需求，如：推荐一款游戏本、想买个降噪耳机...")
-    
-    # 底部工具栏
-    col_tools, col_empty = st.columns([1, 2])
-    with col_tools:
-        if st.button("🗑️ 清空对话", use_container_width=True):
+            with st.chat_message(role):
+                if isinstance(content, list):
+                    st.write(f"生成建议 {len(content)} 项")
+                else:
+                    st.write(content)
+        
+        if st.button("清空仪表盘", use_container_width=True, type="secondary"):
             st.session_state.messages = []
             st.session_state.last_results = None
             st.session_state.last_charts = None
+            st.session_state.current_category = None
+            if 'current_prompt' in st.session_state:
+                del st.session_state.current_prompt
             st.rerun()
-    
-    if prompt:
-        # 添加用户消息
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        
-        # 识别品类
-        cat_key, cat_name = detector.detect_category(prompt)
-        # 强制修正为电子产品范围（防止 detector 返回其他）
-        if cat_key not in ['camera', 'phone', 'laptop', 'headphone', 'tablet']:
-             # 实际上 DynamicAgent 还是会处理，但这里为了前端展示，我们可以更新 current_category
-             pass
 
-        st.session_state.current_category = cat_name
-        
-        # 获取推荐
-        with st.spinner(f"正在分析需求并搜索 {cat_name}..."):
-            history = [{"role": m["role"], "content": str(m["content"])} for m in st.session_state.messages[-6:]]
-            reply, charts, results, analyses, eco_suggestion = st.session_state.agent.handle_chat(prompt, history=history)
-            
-            # 保存结果
-            st.session_state.last_results = results
-            st.session_state.last_charts = charts
-            st.session_state.last_analyses = analyses
-            st.session_state.last_reasons = reply if isinstance(reply, list) else None
-            st.session_state.last_eco_suggestion = eco_suggestion
-            
-            # 添加助手消息
-            st.session_state.messages.append({"role": "assistant", "content": reply})
-        
-        st.rerun()
-
-# 右侧：推荐结果区
-with right_col:
-    cat_name = st.session_state.current_category or "商品"
-    st.markdown(f"<div class='section-header'>🎯 {cat_name}推荐结果</div>", unsafe_allow_html=True)
-    
-    results = st.session_state.last_results
-    reasons = st.session_state.last_reasons
-    charts = st.session_state.last_charts
-    analyses = st.session_state.last_analyses
-    
-    if results:
-        # 商品卡片网格
-        cols = st.columns(3 if len(results) >= 3 else len(results))
-        
-        for idx, (col, product) in enumerate(zip(cols, results[:3])):
-            with col:
-                reason = reasons[idx] if reasons and idx < len(reasons) else None
-                render_product_card(product, reason)
-        
-        # 生态系统搭配建议板块
-        eco_suggestion = st.session_state.last_eco_suggestion
-        if eco_suggestion:
-            st.markdown(f"""
-                <div style='background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); 
-                            border-left: 5px solid #008080; 
-                            padding: 15px; 
-                            border-radius: 8px; 
-                            margin: 20px 0;
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
-                    <div style='color: #008080; font-weight: bold; font-size: 1.1em; margin-bottom: 5px;'>
-                        🔗 全场景生态搭配建议
-                    </div>
-                    <div style='color: #334e68; font-size: 1em; line-height: 1.5;'>
-                        {eco_suggestion}
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        # 图表区
-        if charts and any(charts):
-            st.markdown("---")
-            st.markdown("<div style='font-size:1.1em;font-weight:600;margin-bottom:1em;'>📊 深度对比分析</div>", unsafe_allow_html=True)
-            
-            valid_charts = [c for c in charts if c is not None]
-            if valid_charts:
-                # 调整为3列显示3个图表
-                chart_cols = st.columns(len(valid_charts))
-                titles = ["综合能力雷达图", "核心得分对比", "价格性价比分布"]
-                
-                for i, (col, chart) in enumerate(zip(chart_cols, valid_charts)):
-                    with col:
-                        title = titles[i] if i < len(titles) else "分析图表"
-                        st.markdown(f"<p style='text-align:center;font-weight:500;'>{title}</p>", unsafe_allow_html=True)
-                        st.plotly_chart(chart, use_container_width=True, config={'displayModeBar': False})
-                        
-                        # 在图表下方显示对应分析
-                        if analyses and i < len(analyses):
-                            analysis_text = analyses[i]
-                            # 移除开头的 emoji 以保持整洁，已通过样式美化
-                            clean_text = analysis_text.replace("📊 ", "").replace("🏆 ", "").replace("💰 ", "")
-                            st.markdown(f"""
-                                <div style='background:#f8f9fa;border-radius:8px;padding:10px;font-size:0.9em;color:#555;'>
-                                    💡 {clean_text}
-                                </div>
-                            """, unsafe_allow_html=True)
-        
-        # 移除底部的统一分析文本循环
-    else:
-        st.info("👈 在左侧输入您的需求，开始智能选购！\n\n支持手机、笔记本、相机、耳机、显卡等 10 大数码品类，为您提供全场景生态搭配建议。")
+# 处理输入逻辑
+# Logic moved to top
