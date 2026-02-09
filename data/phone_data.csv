@@ -41,4 +41,46 @@ Apple,iPhone 17 Pro Max,10999,2025,,256,12,6.9,4800,48,A19 Pro,iOS,99,97,92,80
 Samsung,Galaxy S25 Ultra,9999,2025,,256,16,6.8,5000,200,骁龙8 Gen4,Android,98,97,92,82
 Samsung,Galaxy S26 Ultra,10999,2026,,256,16,6.8,5200,200,骁龙8 Gen5,Android,99,98,94,80
 Xiaomi,15 Pro,5499,2024,,256,16,6.73,5400,50,骁龙8 Gen4,Android,96,94,92,90
-Huawei,Mate 70 Pro,7999,2024,,256,12,6.8,5000,50,麒麟9100,HarmonyOS,94,95,90,85
+Huawei,Mate 70 Pro,5499,2024,,256,12,6.69,5000,50,Kirin 9100,HarmonyOS NEXT,90,94,88,85
+Apple,iPhone 17 Pro Max,10999,2025,,256,12,6.9,4852,48,A19 Pro,iOS 19,99,98,92,80
+Apple,iPhone 17 Air,7999,2025,,256,8,6.6,4000,48,A19,iOS 19,94,90,85,85
+Samsung,Galaxy S26 Ultra,9999,2026,,256,16,6.9,5500,200,Snapdragon 8 Elite Gen 5,Android 16,98,99,95,82
+Xiaomi,16 Ultra,6999,2026,,512,16,6.8,6000,200,Snapdragon 8 Elite Gen 5,HyperOS 3.0,98,99,96,90
+Google,Pixel 10 Pro XL,8999,2025,,256,16,6.8,5100,50,Tensor G5,Android 16,92,96,90,85
+Apple,iPhone 16 Pro,7999,2024,,128,8,6.3,3355,48,A18 Pro,iOS 18,96,94,85,82
+Apple,iPhone 17 Pro,8999,2025,,256,12,6.3,3500,48,A19 Pro,iOS 19,99,97,88,80
+Huawei,Mate 70 RS,5499,2024,,256,12,6.69,5000,50,Kirin 9100,HarmonyOS NEXT,90,94,88,85
+Huawei,Pura 80 Ultra,9999,2025,,512,16,6.8,5500,50,Kirin 9200,HarmonyOS NEXT,95,99,94,75
+OPPO,Find X8 Ultra,6999,2025,,256,16,6.8,5500,50,Snapdragon 8 Gen 4,ColorOS 15,96,97,93,88
+Apple,iPhone 17,5999,2025,,128,8,6.1,3600,48,A19,iOS 19,93,90,85,88
+Apple,iPhone 16,5999,2024,,128,8,6.1,3561,48,A18,iOS 18,92,88,84,85
+Samsung,Galaxy S26,5999,2026,,256,12,6.2,4300,50,Snapdragon 8 Elite Gen 5,Android 16,96,92,88,85
+Apple,iPhone 16 Plus,6999,2024,,128,8,6.7,4674,48,A18,iOS 18,92,88,96,85
+Apple,iPhone SE 4,3499,2025,N/A,128,8,6.1,3279,48,A18,iOS 18,90,82,80,92
+Apple,iPhone 16e,4299,2025,,128,8,6.1,3561,48,A18,iOS 18.3,91,84,88,88
+Samsung,Galaxy S25,5499,2025,,128,12,6.2,4000,50,Snapdragon 8 Elite,Android 15,92,88,82,86
+Samsung,Galaxy S25+,6999,2025,N/A,256,12,6.7,4900,50,Snapdragon 8 Elite,Android 15,95,90,94,84
+Samsung,Galaxy S25 FE,4299,2025,N/A,128,8,6.7,4900,50,Exynos 2400,Android 16,88,85,90,92
+Samsung,Galaxy Z Fold 7,13999,2025,,512,16,7.6,4400,200,Snapdragon 8 Elite,Android 15,97,95,78,70
+Samsung,Galaxy Z Flip 7,7999,2025,N/A,256,12,6.9,4300,50,Exynos 2500,Android 15,92,88,85,80
+Samsung,Galaxy A56 5G,3299,2025,N/A,128,8,6.6,5000,50,Exynos 1580,Android 15,82,80,92,90
+Xiaomi,Mix Flip,5999,2024,,256,12,6.86,4780,50,Snapdragon 8 Gen 3,HyperOS,94,90,88,85
+Xiaomi,15,4499,2024,,256,12,6.36,5400,50,Snapdragon 8 Elite,HyperOS 2.0,96,92,94,92
+Xiaomi,15 Ultra,6999,2025,,512,16,6.73,5410,200,Snapdragon 8 Elite,HyperOS 2.0,98,99,94,88
+Xiaomi,15T Pro,4999,2025,,512,12,6.67,5500,50,Dimensity 9400+,HyperOS 2.0,96,92,94,92
+Xiaomi,Redmi Note 14 Pro+,1999,2024,,256,12,6.67,6200,50,Snapdragon 7s Gen 3,HyperOS,80,82,100,98
+Xiaomi,Poco F7 Pro,3699,2025,,512,12,6.67,5500,50,Snapdragon 8 Gen 3,HyperOS,95,88,96,95
+Vivo,X200,4299,2024,,256,12,6.78,5400,50,Dimensity 9400,OriginOS 5,96,94,92,90
+Vivo,X200 Pro,4299,2024,,256,12,6.78,5400,50,Dimensity 9400,OriginOS 5,96,94,92,90
+Vivo,X200 Ultra,4299,2024,,256,12,6.78,5400,50,Dimensity 9400,OriginOS 5,96,94,92,90
+Vivo,S20 Pro,2999,2024,,256,12,6.7,5000,50,Dimensity 9300+,OriginOS 4,92,90,88,92
+OPPO,Find X8 Pro,5999,2024,,512,16,6.78,5700,50,Dimensity 9400,ColorOS 15,96,97,94,88
+OPPO,Reno 13 Pro,3699,2024,,256,12,6.7,5000,50,Dimensity 8350,ColorOS 15,88,88,90,90
+Huawei,Mate 70,5499,2024,,256,12,6.69,5000,50,Kirin 9100,HarmonyOS NEXT,90,94,88,85
+Huawei,Mate X6,12999,2024,,512,16,7.9,5200,50,Kirin 9100,HarmonyOS NEXT,90,92,85,75
+Honor,Magic 7 Pro,5699,2024,,512,16,6.8,5800,200,Snapdragon 8 Elite,MagicOS 9,97,96,95,88
+Honor,Honor 200 Pro,3499,2024,,256,12,6.78,5200,50,Snapdragon 8s Gen 3,MagicOS 8,91,90,92,93
+Google,Pixel 9 Pro XL,8999,2024,N/A,256,16,6.8,5060,50,Tensor G4,Android 14,88,96,88,82
+Google,Pixel 9 Pro Fold,13999,2024,,256,16,8.0,4650,48,Tensor G4,Android 14,86,93,80,75
+Google,Pixel 10 Pro,9499,2025,N/A,256,16,6.3,4700,50,Tensor G5 (TSMC),Android 16,93,97,90,85
+Google,Pixel 10 Pro Fold,14499,2025,,256,16,8.1,4800,50,Tensor G5,Android 16,92,95,85,78

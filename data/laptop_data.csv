@@ -1,16 +1,12 @@
 Brand,Model,Price,Year,image_file,Screen_Size_in,Weight_kg,CPU,GPU,RAM_GB,Storage_GB,Battery_Hours,Category,Performance_Score,Portability_Score,Display_Score,Value_Score
-Apple,MacBook Pro 14 M3 Pro,16999,2023,,14.2,1.55,Apple M3 Pro,Apple M3 Pro GPU,18,512,17,专业本,95,80,95,82
-Apple,MacBook Pro 16 M3 Max,26999,2023,,16.2,2.14,Apple M3 Max,Apple M3 Max GPU,36,1024,22,专业本,98,70,96,75
 Apple,MacBook Air 15 M3,11499,2024,,15.3,1.51,Apple M3,Apple M3 GPU,16,512,18,轻薄本,88,85,92,85
 Apple,MacBook Air 13 M3,8999,2024,,13.6,1.24,Apple M3,Apple M3 GPU,16,256,18,轻薄本,86,95,90,88
-Lenovo,ThinkPad X1 Carbon Gen11,12999,2023,,14.0,1.12,Intel i7-1365U,Intel Iris Xe,16,512,15,商务本,85,96,88,80
 Lenovo,YOGA Pro 14s,7999,2024,,14.5,1.38,Intel i7-13700H,Intel Iris Xe,16,512,12,轻薄本,88,90,92,88
 Lenovo,Legion Y9000P,9999,2024,,16.0,2.57,Intel i9-14900HX,RTX 4070,32,1024,8,游戏本,95,60,90,85
 Lenovo,Legion Y7000P,7299,2024,,15.6,2.40,Intel i7-14650HX,RTX 4060,16,512,7,游戏本,90,65,88,90
 Lenovo,小新Pro 16,5999,2024,,16.0,1.95,Intel i7-13700H,RTX 4050,16,512,10,全能本,88,75,90,92
 Lenovo,小新Air 14,4299,2024,,14.0,1.38,Intel i5-1340P,Intel Iris Xe,16,512,12,轻薄本,78,92,85,94
 Dell,XPS 15,13999,2024,,15.6,1.86,Intel i7-13700H,RTX 4060,16,512,13,轻薄本,90,78,95,80
-Dell,XPS 13 Plus,11999,2023,,13.4,1.23,Intel i7-1360P,Intel Iris Xe,16,512,12,轻薄本,82,95,92,78
 Dell,游匣G16,8499,2024,,16.0,2.67,Intel i7-14650HX,RTX 4060,16,512,7,游戏本,90,62,88,88
 HP,战66六代,5499,2024,,14.0,1.40,Intel i7-1355U,Intel Iris Xe,16,512,12,商务本,80,90,85,92
 HP,暗影精灵9 Plus,8999,2024,,16.1,2.46,Intel i7-13700HX,RTX 4060,16,512,7,游戏本,90,64,88,86
@@ -37,3 +33,31 @@ Apple,MacBook Pro 16 M5,24999,2025,,16.2,2.14,Apple M5,Apple M5 GPU,32,1024,24,�
 Lenovo,Legion Y9000P 2025,10999,2025,,16.0,2.5,Intel i9-15900HX,RTX 5070,32,1024,9,游戏本,97,62,92,86
 Lenovo,Legion Y9000P 2026,11999,2026,,16.0,2.45,Intel i9-16900HX,RTX 6070,64,2048,10,游戏本,99,65,94,82
 Huawei,MateBook X Pro 2025,12999,2025,,14.2,0.95,Intel Ultra 7 2xx,Intel Arc,32,1024,16,轻薄本,92,99,96,80
+ASUS,ROG Zephyrus G14 2025,14999,2025,,14.0,1.50,AMD Ryzen AI Max 390,RTX 5070,32,1024,10,游戏本,96,85,95,85
+MSI,Titan 18 AI 2025,39999,2025,,18.0,3.60,Intel Core Ultra 9 285K,RTX 5090,64,4096,6,游戏本,100,40,98,70
+Dell,XPS 14 2026,15999,2026,,14.5,1.60,Intel Lunar Lake Core Ultra 7,Intel Arc 140V,32,1024,18,轻薄本,90,92,96,78
+Apple,MacBook Pro 16 M5 Max,29999,2026,,16.2,2.15,Apple M5 Max,Apple M5 Max GPU,48,1024,24,专业本,99,75,99,80
+ROG,Zephyrus G14 2025,14999,2025,,14.0,1.50,AMD Ryzen AI Max 390,RTX 5070,32,1024,10,游戏本,95,85,95,85
+Apple,MacBook Air 15 M4,10499,2025,,15.3,1.51,Apple M4,Apple M4 GPU,16,512,18,轻薄本,90,85,92,88
+Apple,MacBook Pro 16 M4 Max,26999,2024,,16.2,2.15,M4 Max (16-core),M4 Max (40-core),48,1024,21,Creative,99,75,99,80
+Apple,MacBook Pro 14 M5,13999,2025,N/A,14.2,1.60,M5 Pro,M5 Pro 20-core,24,512,24,Professional,97,88,98,85
+Lenovo,Yoga Pro 7i Aura,9999,2024,,15.3,1.46,Core Ultra 7 258V,Intel Arc 140V,32,1024,20,Thin&Light,92,95,94,88
+Lenovo,ThinkPad X1 Carbon Gen 13,14999,2025,,14.0,0.98,Core Ultra 7 258V,Intel Arc 140V,32,1024,18,Business,92,100,95,85
+Lenovo,ThinkPad X1 Carbon Gen 14,15999,2026,,14.0,0.98,Core Ultra 7 358V,Intel Arc 240V,32,1024,20,Business,93,100,96,80
+Lenovo,IdeaPad Pro 5i Gen 10,6999,2025,,16.0,1.95,Core Ultra 5 225H,RTX 5050,16,1024,10,All-around,88,82,90,95
+HP,Spectre x360 14 (2024),11999,2024,,14.0,1.45,Core Ultra 7 155H,Intel Arc,32,1024,13,Thin&Light,88,94,96,82
+HP,OmniBook X Flip 14,12999,2025,,14.0,1.35,Snapdragon X Elite,Adreno,32,1024,22,Thin&Light,91,96,94,85
+HP,EliteBook Ultra G1i,13999,2026,,13.5,1.15,Core Ultra 7 368V,Intel Arc,32,1024,18,Business,92,98,95,82
+HP,Omen Max 16,14999,2025,,16.1,2.40,Core i9-15900HX,RTX 5070,32,1024,6,Gaming,96,60,92,88
+Dell,XPS 14 (9440),14999,2024,,14.5,1.68,Core Ultra 7 155H,RTX 4050,16,1024,10,Creative,90,85,96,78
+Dell,XPS 16 (9640),18999,2024,N/A,16.3,2.20,Core Ultra 9 185H,RTX 4070,32,1024,12,Creative,94,70,98,75
+Dell,Alienware m16 R3,21999,2025,,16.0,2.55,Core Ultra 9 285H,RTX 5080,64,2048,5,Gaming,99,55,95,78
+ASUS,Zenbook DUO 2026,19999,2026,,14.0 Dual,1.65,Core Ultra 9 385H,Intel Arc,32,2048,12,Creative,95,80,98,80
+ASUS,ROG Zephyrus G16 2025,20999,2025,,16.0,1.85,Ryzen AI 9 HX 370,RTX 5080,32,2048,10,Gaming,98,85,97,82
+ASUS,ProArt P16 2024,17999,2024,,16.0,1.85,Ryzen AI 9 HX 370,RTX 4070,64,2048,10,Creative,96,82,98,88
+Razer,Blade 16 2025,32999,2025,,16.0,2.45,Core i9-15950HX,RTX 5090,64,4096,5,Gaming,100,65,99,68
+Huawei,MateBook 14 Core Ultra,6499,2024,,14.2,1.31,Core Ultra 5 125H,Intel Arc,16,1024,14,Thin&Light,88,95,92,92
+Dell,XPS 13 2024,12999,2024,N/A,13.4,1.19,Snapdragon X Elite,Adreno,16,512,N/A,N/A,88,98,90,82
+Lenovo,Yoga Slim 7i Aura,9999,2024,,15.3,1.46,Core Ultra 7 258V,Intel Arc 140V,32,1024,20,Thin&Light,92,95,94,88
+Dell,XPS 13 9340,12999,2024,N/A,13.4,1.19,Snapdragon X Elite,Adreno,16,512,18,Thin&Light,88,98,90,82
+Lenovo,Legion Pro 7i Gen 9,18999,2024,,16.0,2.62,i9-14900HX,RTX 4090 Laptop,32,1024,8,Gaming,98,60,94,82

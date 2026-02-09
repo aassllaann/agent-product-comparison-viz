@@ -2,14 +2,9 @@ Brand,Model,Price,Year,image_file,Storage_GB,Max_Resolution,Exclusive_Games_Coun
 Sony,PlayStation 5,3899,2020,,825,4K 120fps,50+,PS Plus,PS4,95,95,90,85
 Sony,PlayStation 5 Digital,3099,2020,,825,4K 120fps,50+,PS Plus,PS4,95,95,88,88
 Sony,PlayStation 5 Slim,3499,2023,,1000,4K 120fps,50+,PS Plus,PS4,96,96,90,86
-Sony,PlayStation 4 Pro,2399,2016,,1000,4K 30fps,100+,PS Plus,PS4,75,88,82,85
-Sony,PlayStation 4 Slim,1799,2016,,500,1080p,100+,PS Plus,PS4,70,85,80,88
 Microsoft,Xbox Series X,3899,2020,,1000,4K 120fps,30+,Game Pass,全代,96,92,92,85
 Microsoft,Xbox Series S,2399,2020,,512,1440p 120fps,30+,Game Pass,全代,88,90,88,92
-Microsoft,Xbox One X,2999,2017,,1000,4K 30fps,50+,Game Pass,Xbox One/360,78,85,85,82
 Nintendo,Switch OLED,2599,2021,,64,1080p,150+,NSO,Switch,70,98,75,88
-Nintendo,Switch,2099,2017,,32,1080p,150+,NSO,Switch,65,96,70,90
-Nintendo,Switch Lite,1499,2019,,32,720p,150+,NSO,Switch,62,95,65,94
 Valve,Steam Deck 512GB,4299,2022,,512,800p,Steam库,Steam,PC,82,94,80,82
 Valve,Steam Deck 256GB,3299,2022,,256,800p,Steam库,Steam,PC,80,92,78,85
 Valve,Steam Deck 64GB,2599,2022,,64,800p,Steam库,Steam,PC,78,90,75,88
@@ -23,7 +18,6 @@ Anbernic,RG556,1299,2024,,128,1080p,模拟器,无,全模拟器,65,70,60,92
 Retroid,Pocket 4 Pro,1599,2024,,128,1080p,模拟器+Android,无,全模拟器,68,72,65,90
 Sony,PlayStation Portal,1499,2023,,无,1080p,PS5串流,无,PS5,60,75,70,78
 Xbox,云游戏手柄,899,2022,,无,1080p,Game Pass串流,Game Pass,云端,55,80,65,85
-Nvidia,Shield TV Pro,1499,2019,,16,4K,GeForce Now,GeForce Now,云端,75,82,88,82
 Sony,PS5 Pro,5999,2024,,2000,4K 120fps,50+,PS Plus,PS4/PS5,98,96,92,78
 Microsoft,Xbox Series X 2TB,4999,2024,,2000,4K 120fps,30+,Game Pass,全代,97,93,93,80
 Nintendo,Switch 2,3299,2025,,128,1080p,200+,NSO,Switch,80,98,78,85
@@ -34,3 +28,14 @@ Ayaneo,Kun,7999,2023,,2000,1600p,Steam库,Steam,PC,90,88,85,70
 GPD,WIN Mini,5999,2024,,512,1200p,Steam库,Steam,PC,84,84,78,75
 Anbernic,RG405V,899,2023,,128,960p,模拟器,无,全模拟器,62,68,58,94
 Sony,PlayStation 6,4999,2026,,2000,8K 60fps,60+,PS Plus,PS4/PS5,99,98,95,75
+Nintendo,Switch 2,2999,2025,,128,4K DLSS,20+,NSO,Switch,85,98,80,95
+Sony,PlayStation 5 Pro,5999,2024,,2000,8K,60+,PS Plus,PS4,98,96,92,80
+Steam,Steam Deck 2,3599,2026,,1024,1080p,Unlimited,None,Yes,92,99,88,95
+Sony,PS6,4999,2026,,2000,8K / 4K 240Hz,100+,PS Plus Premium,Yes (PS4/PS5/PS6),100,96,98,80
+Valve,Steam Deck OLED 1TB,4699,2024,,1024,800p / 4K Ext,50000+ (Steam),None (Steam Store),N/A,88,94,85,92
+ASUS,ROG Ally X,5799,2024,,1024,1080p 120Hz,PC Library,Xbox Game Pass (3 mo),N/A,92,88,85,85
+Lenovo,Legion Go S,3999,2025,,512,1080p,Unlimited,Game Pass,Yes,88,90,85,92
+Lenovo,Legion Go 2,6299,2026,,1024,1600p 144Hz,PC Library,Xbox Game Pass,N/A,95,85,92,82
+MSI,Claw 8 AI+,6999,2026,,1024,1200p 120Hz (VRR),PC Library,None,N/A,94,82,88,78
+Ayaneo,Next II,8999,2026,,2048,1080p/4K Ext,PC Library,None,N/A,96,80,90,70
+GPD,WIN 5,6599,2026,,1024,1080p,PC Library,None,N/A,93,80,82,85

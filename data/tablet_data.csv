@@ -26,9 +26,10 @@ Honor,Pad 9,2099,2024,,12.1,555,骁龙6 Gen1,8,256,8300,Android,True,72,85,78,94
 realme,Pad 2,1599,2023,,11.5,507,Helio G99,6,128,8360,Android,True,68,82,72,96
 OnePlus,Pad,2999,2023,,11.6,552,天玑9000,12,256,9510,Android,True,86,88,85,90
 Microsoft,Surface Pro 9,9888,2022,,13.0,879,Intel i7-1255U,16,256,48000,Windows,True,85,92,95,75
-Microsoft,Surface Go 3,4388,2021,,10.5,553,Intel i3-10100Y,8,128,27000,Windows,True,65,78,75,78
 联想,小新Pad Pro 2024,1999,2024,,11.5,510,骁龙870,6,128,8200,Android,True,76,85,78,96
 荣耀,平板9,2099,2024,,12.1,555,骁龙6 Gen1,8,256,8300,Android,True,72,85,78,94
 Apple,iPad Pro 13 M5,11999,2025,,13.0,570,Apple M5,16,512,10500,iPadOS,True,99,99,98,75
 Samsung,Galaxy Tab S10 Ultra,10999,2025,,14.6,730,骁龙8 Gen4,16,512,11500,Android,True,95,96,95,78
 Huawei,MatePad Pro 13.2 2025,8299,2025,,13.2,575,麒麟9100,16,512,10200,HarmonyOS,True,92,95,94,82
+Apple,iPad Pro 11 M5,8499,2025,,11.0,440,Apple M5,12,256,8500,iPadOS 19,True,99,98,94,80
+Samsung,Galaxy Tab S10 Ultra,10999,2025,,14.6,735,Dimensity 9300+,16,512,11500,Android 15,True,95,96,96,78

@@ -1,12 +1,9 @@
 Brand,Model,Price,Year,image_file,Type,Wireless,ANC,Battery_Hours,Driver_mm,Impedance_Ohm,Sound_Score,Comfort_Score,ANC_Score,Value_Score
 Apple,AirPods Pro 2,1899,2023,,入耳式,True,True,6,11,0,88,90,92,82
-Apple,AirPods Max,4399,2020,,头戴式,True,True,20,40,0,95,88,95,70
 Apple,AirPods 4,1299,2024,,半入耳式,True,False,5,11,0,82,92,0,85
 Apple,AirPods 4 主动降噪版,1599,2024,,半入耳式,True,True,5,11,0,84,92,85,82
 Sony,WH-1000XM5,2499,2022,,头戴式,True,True,30,30,48,96,92,98,88
-Sony,WH-1000XM4,1899,2020,,头戴式,True,True,30,40,47,94,90,95,92
 Sony,WF-1000XM5,1999,2023,,入耳式,True,True,8,8.4,0,92,88,94,85
-Sony,WF-1000XM4,1499,2021,,入耳式,True,True,8,6,0,90,85,92,90
 Sony,MDR-MV1,3299,2023,,头戴式,False,False,0,40,24,96,85,0,78
 Bose,QuietComfort Ultra Headphones,3399,2023,,头戴式,True,True,24,35,0,94,94,96,82
 Bose,QuietComfort Headphones,2399,2024,,头戴式,True,True,24,35,0,90,92,94,88
@@ -15,24 +12,19 @@ Bose,QuietComfort Earbuds II,1899,2022,,入耳式,True,True,6,9.3,0,88,88,92,86
 Sennheiser,MOMENTUM 4,2799,2022,,头戴式,True,True,60,42,0,95,90,92,85
 Sennheiser,MOMENTUM True Wireless 3,2299,2022,,入耳式,True,True,7,7,0,92,86,88,82
 Sennheiser,HD660S2,3999,2023,,头戴式,False,False,0,38,300,98,88,0,78
-Sennheiser,HD600,2499,1997,,头戴式,False,False,0,38,300,97,85,0,85
 JBL,Tour One M2,2199,2023,,头戴式,True,True,50,40,32,88,88,90,88
 JBL,Live 770NC,1299,2023,,头戴式,True,True,50,40,32,85,86,88,92
 JBL,Tune 770NC,699,2023,,头戴式,True,True,50,40,32,78,82,80,95
 华为,FreeBuds Pro 3,1199,2023,,入耳式,True,True,6.5,11,0,88,88,90,92
 华为,FreeBuds 5,799,2023,,半入耳式,True,False,5,11,0,82,90,0,94
-华为,FreeBuds Studio,2999,2020,,头戴式,True,True,24,40,0,85,86,88,78
 小米,Buds 4 Pro,999,2022,,入耳式,True,True,6,11,0,84,85,88,94
 小米,Buds 4,499,2023,,半入耳式,True,False,5,10,0,78,88,0,96
 OPPO,Enco X2,999,2022,,入耳式,True,True,5.5,11,0,86,86,86,92
 vivo,TWS 3 Pro,999,2023,,入耳式,True,True,6,12.2,0,86,88,88,92
 索尼,LinkBuds S,1199,2022,,入耳式,True,True,6,5,0,85,88,86,88
-森海塞尔,CX Plus True Wireless,999,2021,,入耳式,True,True,8,7,0,88,84,82,88
 Beats,Studio Pro,2899,2023,,头戴式,True,True,40,40,0,88,86,90,78
-Beats,Fit Pro,1599,2021,,入耳式,True,True,6,9.5,0,84,88,86,82
 铁三角,ATH-M50xBT2,1699,2022,,头戴式,True,False,50,45,38,92,82,0,88
 铁三角,ATH-CKS50TW,1299,2022,,入耳式,True,True,20,9,0,86,84,82,88
-AKG,N700NC M2,1999,2021,,头戴式,True,True,23,40,32,90,85,88,82
 漫步者,W830NB,399,2023,,头戴式,True,True,45,40,32,78,82,80,96
 漫步者,NeoBuds Pro 2,599,2023,,入耳式,True,True,5.5,10,0,82,84,84,94
 飞利浦,TAH8506,1099,2022,,头戴式,True,True,60,40,32,82,84,82,90
@@ -40,3 +32,14 @@ Apple,AirPods Pro 3,1999,2025,,入耳式,True,True,7,11,0,92,92,95,80
 Sony,WH-1000XM6,2799,2025,,头戴式,True,True,40,30,48,97,94,99,85
 Bose,QuietComfort Ultra 2,3599,2026,,头戴式,True,True,30,35,0,96,95,98,80
 Sennheiser,MOMENTUM 5,2999,2026,,头戴式,True,True,70,42,0,98,92,94,82
+Apple,AirPods Pro 3,1999,2025,,入耳式,True,True,7,11,0,92,94,96,85
+Sony,WH-1000XM6,2899,2025,,头戴式,True,True,35,35,48,97,95,99,88
+Bose,QuietComfort Ultra 2,3299,2026,,头戴式,True,True,28,40,0,95,98,98,80
+Apple,AirPods Max 2,4299,2025,,Over-ear,True,True,25,40,N/A,96,92,98,75
+Bose,QC Ultra Headphones (Gen 2),3299,2025,,Over-ear,True,True,30,35,N/A,95,98,99,85
+Bose,QC Ultra Earbuds (Gen 2),2299,2025,,In-ear,True,True,6,9.3,N/A,92,90,99,85
+Sennheiser,Momentum True Wireless 4,2499,2024,N/A,In-ear,True,True,7.5,7,N/A,94,85,83,88
+Jabra,Elite 10 Gen 2,1999,2024,,In-ear,True,True,6.5,10,N/A,92,94,92,93
+Jabra,Elite 8 Active Gen 2,1699,2024,,In-ear,True,True,8,6,N/A,88,95,85,92
+Beats,Powerbeats Pro 2,1899,2025,N/A,In-ear (Hook),True,True,8,11,N/A,90,96,83,80
+Bose,QC Ultra Headphones 2,3299,2025,N/A,Over-ear,True,True,24,35,N/A,94,98,99,85
