@@ -119,13 +119,15 @@ Amershi 等人\cite{Amershi2014InteractiveML}在 IUI 会议的研究指出，在
 
 \subsection{核心算法设计}
 
-\subsubsection{用户需求语义解析与参数提取}
+\subsubsection{用户需求语义解析与提示工程约束}
 
 在智能商品选购系统中，用户需求的准确理解是推荐流程的起点。现实场景下，消费者通常通过自然语言表达需求，而这些表达往往具有明显的口语化特征，例如“我想买一台不差钱、能打游戏还能做后期修图的电脑”。此类描述同时包含主观评价和多个使用场景，因此难以直接转换为数据库查询条件。
 
-虽然大语言模型在语义理解方面具有显著优势，但在长文本推理过程中仍可能出现注意力漂移或语义扩散问题。如果缺乏约束机制，模型在解析需求时可能生成不稳定甚至虚构的参数，从而影响推荐系统的可靠性。
+虽然大语言模型在语义理解方面具有显著优势，但在长文本推理过程中仍可能出现注意力漂移或语义扩散问题。如果在解析需求时缺乏理论与系统层面的约束机制，模型极易产生不稳定甚至虚构的参数，从而影响推荐系统的可靠性。Brown 等人在 GPT-3 的研究中验证了通过上下文示例（In-Context Learning）引导模型完成下游任务的泛化有效性\cite{Brown2020LanguageModelsAF}，Liu 等人则在提示工程（Prompt Engineering）综述中进一步指出，提示语承担了与任务约束格式和应用领域知识直接交互的核心作用\cite{Liu2021PretrainPromptPredict}。
 
-为此，系统设计了一种基于提示工程的方法，通过结构化提示词约束模型输出。在单轮交互中，模型需完成 8 个维度的关键参数提取：1. \texttt{usage}（用途）；2. \texttt{budget\_level}（预算描述）；3. \texttt{max\_price}（数值预算，检测到“不差钱”等表达时映射为最高限额 \texttt{999999}，缺省默认为 \texttt{20000}）；4. \texttt{sort\_field}（依据用户偏好推断的排序权重）；5. \texttt{summary}（核心诉求归纳）；6. \texttt{product\_type}（特定类型约束）；7. \texttt{brand}（品牌偏好）；8. \texttt{owned\_items}（用户已购设备，用于生态联动）。提取出的 \texttt{owned\_items} 字段是实现跨品类关联逻辑的核心，使系统能够识别用户已有的产品并推荐具有强协同效应的新型号。
+循此思路，本系统将提示词的稳定构建视为工程层面的核心设计，采用“角色设定与结构化输出限制”的复合策略。在系统单轮交互中，模型首先被赋予“你是一个 \{category\_name\} 导购专家”的角色指令。White 等人在软件工程视角的提示模式（Prompt Pattern）研究中分析表明，设定专家角色（Persona）能有效收缩模型的生成空间，使输出贴合该垂直领域的专业语境\cite{White2023PromptPatternCatalog}。继而，基于运行时的动态提示词拼接（Dynamic Prompt Construction），系统要求模型完成 8 个维度的关键参数提取：1. \texttt{usage}（用途）；2. \texttt{budget\_level}（预算描述）；3. \texttt{max\_price}（数值预算，检测到“不差钱”等表达时映射为最高限额 \texttt{999999}，缺省默认为 \texttt{20000}）；4. \texttt{sort\_field}（依据用户偏好推断的排序权重）；5. \texttt{summary}（核心诉求归纳）；6. \texttt{product\_type}（特定类型约束）；7. \texttt{brand}（品牌偏好）；8. \texttt{owned\_items}（用户已购设备，用于生态联动）。提取出的 \texttt{owned\_items} 字段是实现跨品类关联逻辑的核心，使系统能够识别用户已有的产品并推荐具有协同效应的新型号。
+
+针对原生大模型输出格式不可直接作为程序输入的风险，系统于提示词末尾应用了“输出自动化器”设计理念\cite{White2023PromptPatternCatalog}。通过“输出严格 JSON”的数据契约声明，系统成功将自然语言处理环节转换为精确、可用于底层校验模块的数据传递。
 
 \begin{lstlisting}[language=Python, caption={通用意图解析系统提示词构建（对应文件：base\_agent.py）}, label={code:intent_prompt}]
 def _parse_intent_generic(self, user_msg: str, category_name: str, fields_desc: str) -> dict:
@@ -147,9 +149,11 @@ def _parse_intent_generic(self, user_msg: str, category_name: str, fields_desc: 
     return self.call_llm_json(system_rules, user_msg)
 \end{lstlisting}
 
-此外，为解决系统预设商品类别有限的问题，系统设计了动态品类补全机制（Dynamic Category Scoring System）。当核心识别模块 \texttt{CategoryDetector} 检测到用户需求涉及未在系统预定义类别中的商品时，系统将进入知识推理模式，由模型自动生成该品类的评价维度。例如在厨房电器场景中，系统可能生成“功率”“容量”“温控能力”等评价指标，从而构建新的评分体系。该机制使系统能够在无需预先配置数据结构的情况下扩展新的商品类别。
+此外，为解决系统预设商品类别有限的问题，系统设计了动态品类补全机制（Dynamic Category Scoring System）。当核心识别模块 \texttt{CategoryDetector} 检测到用户需求涉及未预置领域的商品时，系统将进入大语言模型知识推理模式，自动补充构建该品类的评价维度框架。
 
-\begin{lstlisting}}[language=Python, caption={基于LLM的动态评分体系构建算法（对应文件：category\_detector.py）}, label={code:intent_prompt}]
+在动态推理流程的实现中，提示模板应用了“思维链（Chain-of-Thought）”诱导策略。Wei 等人在研究中发现，要求模型隐式或显式地输出逻辑推理的中间步骤，可以成倍提升其应对复杂业务推理的容错率与准确性\cite{Wei2022ChainOfThought}。基于此，构建算法（参见代码 \ref{code:dynamic_sys}）并非单纯向大模型索要最终结果，而是引导模型逐步推演：首先提取该品类 3-5 个核心功能的评价指标（例如厨房电器的“功率”“容量”），进而为各个指标分配权重、生成底层数据模型的字段名，最后归纳出适合匹配用户口语表达的使用场景。依托这种步步推进的思维链模式扩展边界，系统即便并未预先创建底层库表，亦可保持推荐架构评价体系在处理长尾类别时的鲁棒性与语义自洽。
+
+\begin{lstlisting}[language=Python, caption={基于LLM的动态评分体系思维链构建算法（对应文件：category\_detector.py）}, label={code:dynamic_sys}]
     def build_scoring_system(
         self, 
         category_key: str, 
