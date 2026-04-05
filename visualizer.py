@@ -6,32 +6,34 @@ def _ensure_dir():
     if not os.path.exists("charts"):
         os.makedirs("charts")
 
-# Light Pink-Purple Palette
+# Bold Naturals Palette — warm → cool order for visual harmony
 THEME_COLORS = [
-    '#EC4899',  # Pink
-    '#8B5CF6',  # Violet
-    '#D946EF',  # Fuchsia
-    '#A855F7',  # Purple
-    '#DB2777'   # Rose
+    '#F94144',  # Sunset Orange
+    '#F8961E',  # Tree Poppy
+    '#F9C74F',  # Saffron Mango
+    '#90BE6D',  # Olivine
+    '#43AA8B',  # Ocean Green
+    '#577590',  # Smalt Blue
+    '#F3722C',  # Tango
 ]
 
 def _apply_theme(fig):
-    """应用浅色粉紫主题配置"""
+    """应用 Bold Naturals 主题配置"""
     fig.update_layout(
         template="plotly_white",
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family="Inter, sans-serif", color="#4B5563"),
+        font=dict(family="Inter, sans-serif", color="#36302A"),  # warm dark
         margin=dict(l=20, r=20, t=40, b=20),
         xaxis=dict(
-            showgrid=False, 
+            showgrid=False,
             zeroline=False,
-            tickfont=dict(color='#4B5563')
+            tickfont=dict(color='#7A6E5F')   # warm secondary
         ),
         yaxis=dict(
-            gridcolor='rgba(236, 72, 153, 0.1)', # Soft pink grid
-            zerolinecolor='rgba(236, 72, 153, 0.1)',
-            tickfont=dict(color='#4B5563')
+            gridcolor='rgba(248, 150, 30, 0.12)',  # soft Tree Poppy grid
+            zerolinecolor='rgba(248, 150, 30, 0.12)',
+            tickfont=dict(color='#7A6E5F')   # warm secondary
         )
     )
     return fig
