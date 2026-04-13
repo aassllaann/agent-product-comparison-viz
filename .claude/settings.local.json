@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd /c \"dir D:\\\\毕业设计\\\\文章part\")",
+      "Bash(cmd /c \"type \\\\\"D:\\\\毕业设计\\\\文章part\\\\全文latex存档.md\\\\\"\")",
+      "Bash(powershell -Command \"Get-Content 'D:\\\\毕业设计\\\\文章part\\\\全文latex存档.md' -Encoding UTF8\")",
+      "Bash(python3:*)",
+      "Bash(python:*)"
+    ]
+  }
+}

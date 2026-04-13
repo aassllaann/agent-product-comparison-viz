@@ -6,11 +6,11 @@ def _ensure_dir():
     if not os.path.exists("charts"):
         os.makedirs("charts")
 
-# Theme Palette
+# Theme Palette (Quieter & Refined)
 THEME_COLORS = [
-    '#77BCF1',  # Light Blue
-    '#FFDD75',  # Light Yellow
-    '#FF9C75',  # Light Orange
+    '#5D89B1',  # Muted Blue
+    '#F1C40F',  # Flat Gold
+    '#E67E22',  # Carrot Orange
 ]
 
 def _apply_theme(fig):
@@ -19,17 +19,17 @@ def _apply_theme(fig):
         template="plotly_white",
         paper_bgcolor='#FFFFFF',
         plot_bgcolor='#FFFFFF',
-        font=dict(family="Inter, sans-serif", color="#0073CB"),
+        font=dict(family="Inter, sans-serif", color="#3A5A78"),
         margin=dict(l=20, r=20, t=40, b=20),
         xaxis=dict(
             showgrid=False,
             zeroline=False,
-            tickfont=dict(color='#0073CB')
+            tickfont=dict(color='#3A5A78')
         ),
         yaxis=dict(
-            gridcolor='rgba(0, 115, 203, 0.1)',
-            zerolinecolor='rgba(0, 115, 203, 0.1)',
-            tickfont=dict(color='#0073CB')
+            gridcolor='rgba(58, 90, 120, 0.1)',
+            zerolinecolor='rgba(58, 90, 120, 0.1)',
+            tickfont=dict(color='#3A5A78')
         )
     )
     return fig
@@ -83,13 +83,13 @@ def draw_radar(products, dimensions=None):
     
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color='#0073CB'), gridcolor='rgba(0, 115, 203, 0.1)'),
-            angularaxis=dict(tickfont=dict(size=11, color='#0073CB'), gridcolor='rgba(0, 115, 203, 0.1)'),
+            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color='#3A5A78'), gridcolor='rgba(0, 115, 203, 0.1)'),
+            angularaxis=dict(tickfont=dict(size=11, color='#3A5A78'), gridcolor='rgba(0, 115, 203, 0.1)'),
             bgcolor='#FFFFFF'
         ),
         height=320,
         showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color="#0073CB"))
+        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color="#3A5A78"))
     )
     return fig
 
@@ -118,7 +118,7 @@ def draw_comparison(products, field_name):
     
     _apply_theme(fig)
     fig.update_layout(
-        title=dict(text=f"{safe_name} 对比", font=dict(size=14, color="#0073CB"), x=0.5, y=0.95),
+        title=dict(text=f"{safe_name} 对比", font=dict(size=14, color="#3A5A78"), x=0.5, y=0.95),
         height=300,
         yaxis=dict(range=[0, 110])
     )
@@ -156,11 +156,11 @@ def draw_multi_dimension_compare(products, dimensions=None):
     _apply_theme(fig)
     
     fig.update_layout(
-        title=dict(text="核心能力多维对比", font=dict(size=14, color="#0073CB"), x=0.5, y=0.95),
+        title=dict(text="核心能力多维对比", font=dict(size=14, color="#3A5A78"), x=0.5, y=0.95),
         barmode='group',
         height=320,
         showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color="#0073CB")),
+        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color="#3A5A78")),
         yaxis=dict(title='评分', range=[0, 110])
     )
     return fig

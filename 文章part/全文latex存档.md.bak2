@@ -103,38 +103,6 @@ Amershi 等人\cite{Amershi2014InteractiveML}在 IUI 会议的研究指出，在
 
 调研结果显示，用户在购买数码产品时普遍需要同时参考多个信息渠道。约85\%的受访者表示，在查询商品信息时通常需要在京东、B站、小红书等平台之间来回切换，由于各平台的信息呈现方式不统一，用户往往不得不手动整理参数并自行完成横向对比，这一过程显著拉长了决策周期。与此同时，约80\%的受访者认为网络评测内容普遍带有一定主观倾向，部分文章或视频夹杂个人偏好甚至商业推广因素，使得用户难以从中提取真正客观的产品信息。此外，部分技术参数本身具有一定的理解门槛——"传感器单像素尺寸""阻抗"等专业术语对普通用户而言较难直观把握，约40\%的受访者明确表示希望系统能够通过图表等可视化方式辅助理解关键参数的差异。
 
-
-为系统性梳理上述调研发现，表\ref{tab:requirements}从功能需求与非功能需求两个维度归纳了系统的设计目标。
-
-\begin{table}[htbp]
-\centering
-\caption{智能商品推荐系统需求汇总}
-\label{tab:requirements}
-\begin{tabular}{p{2.2cm} p{3.2cm} p{6.8cm}}
-\hline
-\textbf{需求类型} & \textbf{需求项} & \textbf{具体描述} \\ 
-\hline
-
-\multirow{6}{2.2cm}{功能需求} 
-& 自然语言理解 & 解析含预算、场景、品牌偏好等信息的口语化查询 \\ 
-& 多品类推荐 & 支持手机、笔记本、相机等10类数码产品的精准推荐 \\ 
-& 结构化筛选 & 依据价格上限、品牌偏好等硬性约束过滤候选商品 \\ 
-& 推荐理由生成 & 用自然语言解释每款推荐产品的核心优势与适用场景 \\ 
-& 可视化对比 & 以雷达图、柱状图呈现多维度性能差异，辅助用户决策 \\ 
-& 跨品类搭配 & 识别用户已有设备，给出生态化配套建议 \\ 
-
-\hline
-
-\multirow{4}{2.2cm}{非功能需求} 
-& 响应时延 & 端到端推荐流程耗时控制在5秒以内 \\ 
-& 识别准确率 & 预设品类关键词识别准确率达100\% \\ 
-& 可扩展性 & 支持动态添加新品类而无需修改核心推荐链路 \\ 
-& 可解释性 & 每条推荐均有结构化数据来源可追溯，抑制幻觉生成 \\ 
-
-\hline
-\end{tabular}
-\end{table}
-
 上述问题共同指向三类功能需求。在输入层面，系统需要能够理解用户较为口语化的需求表达，例如"3000元拍视频的相机"这类描述实际上同时包含预算范围、使用场景与产品类型等信息，系统须借助大语言模型完成语义解析与槽位填充，从自然语言中提取结构化参数。在处理层面，调研显示大多数用户希望系统在一次交互中给出3至5款重点产品并附带简要推荐理由，因此系统需要基于客观参数完成数据筛选，并生成具有解释性的推荐说明，而非简单罗列商品列表。在输出层面，系统应提供可视化展示以帮助用户理解产品间的性能差异；考虑到数码产品日益形成生态化使用趋势，系统还应能够提供跨品类设备的搭配建议。综合而言，系统设计需要兼顾通用性与客观性，并以关系型数据库作为底层事实来源，以减少大模型在推荐过程中可能产生的幻觉问题。
 
 
@@ -148,52 +116,6 @@ Amershi 等人\cite{Amershi2014InteractiveML}在 IUI 会议的研究指出，在
 
 此外，架构中还引入了动态领域扩展机制以提升系统的可扩展能力。当系统检测到用户需求属于尚未预置的新商品类别时，可调用大语言模型对该类别的评价维度进行初步推断，临时构建相应的评分体系，并自动切换至咨询模式以保证用户仍能获得基础信息服务。这一机制使系统能够在不修改既有代码的情况下扩展所支持的商品类别范围。
 
-从工程实现视角看，四层架构与项目代码模块存在明确的对应关系，如表\ref{tab:modules}所示：
-
-\begin{table}[htbp]
-\centering
-\caption{系统层次架构与代码模块对应关系}
-\label{tab:modules}
-\begin{tabular}{p{3.2cm} p{4cm} p{5cm}}
-\hline
-\textbf{架构层} & \textbf{核心文件} & \textbf{主要职责} \\ 
-\hline
-
-表象展示与会话层 & \texttt{app.py} & 前端界面渲染、会话状态管理、图表与商品卡片动态加载 \\ 
-
-路由与意图解析层 & \texttt{multi\_agent.py}、\texttt{category\_detector.py} & 品类识别、Agent路由分发、动态代理实例化 \\ 
-
-业务决策与领域代理层 & \texttt{base\_agent.py}、\texttt{electronics\_agents.py} & 意图解析、候选召回、评分排序、推荐理由生成 \\ 
-
-实体映射与事实数据层 & \texttt{models.py}、SQLite数据库 & ORM模型定义、参数存储、结构化数据管理 \\ 
-
-公共组件 & \texttt{visualizer.py}、\texttt{config.py}、\texttt{ecosystem\_config.py} & 图表绘制、全局配置、生态场景定义 \\ 
-
-\hline
-\end{tabular}
-\end{table}
-
-
-系统的完整数据流可归纳为以下六个阶段：\ding{172} 用户在前端输入自然语言需求；\ding{173} \texttt{CategoryDetector} 识别商品品类，\texttt{MultiCategoryAgent} 路由至对应领域 Agent；\ding{174} 领域 Agent 通过提示词工程完成结构化意图解析，提取预算、场景、品牌偏好等槽位信息；\ding{175} 双层推荐引擎执行候选召回（场景预设优先 + 全库兜底备用）与多维度排序；\ding{176} LLM 生成推荐理由，可视化模块构建多类型交互图表；\ding{177} 前端组装商品信息卡片与图表，以图文结合形式反馈给用户。跨品类请求还会在步骤 \ding{174} 之后额外触发生态增强模块，识别用户的潜在配套需求。
-
-
-\subsubsection{三层品类分类体系设计}
-
-品类的准确识别是推荐流程的前提条件。系统在 \texttt{category\_detector.py} 中构建了一套三层品类分类体系，将10个数码产品品类按功能属性组织为大类–中类–小类的层级结构，并为每个品类附加关键词词典与生态标签。
-
-\begin{itemize}
-\item \textbf{中类一：核心电子设备}——手机、笔记本电脑、平板电脑；
-\item \textbf{中类二：影音设备}——相机、耳机、蓝牙音箱；
-\item \textbf{中类三：数码配件}——智能手表、显示器；
-\item \textbf{中类四：游戏设备}——游戏主机、显卡。
-\end{itemize}
-
-每个品类均配有多组关键词列表，兼顾通俗称谓与英文缩写，用于快速模糊匹配。例如笔记本品类覆盖"笔记本""电脑""laptop""notebook""macbook""游戏本"等词汇；耳机品类覆盖"耳机""headphone""airpods""耳麦"等。当用户输入无法被预设关键词命中时，系统退回至大语言模型进行语义级别的品类推断，保证对长尾表达的覆盖能力。
-
-此外，每个品类还携带若干"生态标签"（ecosystem\_tags），用于跨品类推荐阶段的场景索引。例如笔记本电脑关联"移动办公""专业游戏""摄影创作"三个场景，相机关联"摄影创作"场景，显示器同时关联"移动办公""专业游戏""摄影创作"三个场景。这些标签构成了生态推荐模块的索引骨架，使系统在识别到当前品类后能够快速定位潜在的配套设备候选范围，并在完成主品类推荐后生成有针对性的跨品类搭配建议。
-
-
-
 
 \subsection{核心算法设计}
 
@@ -201,9 +123,9 @@ Amershi 等人\cite{Amershi2014InteractiveML}在 IUI 会议的研究指出，在
 
 在智能商品选购系统中，用户需求的准确理解是推荐流程的起点。现实场景下，消费者通常通过自然语言表达需求，而这些表达往往具有明显的口语化特征，例如“我想买一台不差钱、能打游戏还能做后期修图的电脑”。此类描述同时包含主观评价和多个使用场景，因此难以直接转换为数据库查询条件。
 
-虽然大语言模型在语义理解方面具有显著优势，但在长文本推理过程中仍可能出现注意力漂移或语义扩散问题。如果在解析需求时缺乏理论与系统层面的约束机制，模型极易产生不稳定甚至虚构的参数，从而影响推荐系统的可靠性。Brown 等人在 GPT-3 的研究中验证了通过上下文示例引导模型完成下游任务的泛化有效性\cite{Brown2020LanguageModelsAF}，Liu 等人则在提示工程综述中进一步指出，提示语承担了与任务约束格式和应用领域知识直接交互的核心作用\cite{Liu2021PretrainPromptPredict}。
+虽然大语言模型在语义理解方面具有显著优势，但在长文本推理过程中仍可能出现注意力漂移或语义扩散问题。如果在解析需求时缺乏理论与系统层面的约束机制，模型极易产生不稳定甚至虚构的参数，从而影响推荐系统的可靠性。Brown 等人在 GPT-3 的研究中验证了通过上下文示例（In-Context Learning）引导模型完成下游任务的泛化有效性\cite{Brown2020LanguageModelsAF}，Liu 等人则在提示工程（Prompt Engineering）综述中进一步指出，提示语承担了与任务约束格式和应用领域知识直接交互的核心作用\cite{Liu2021PretrainPromptPredict}。
 
-循此思路，本系统将提示词的稳定构建视为工程层面的核心设计，采用“角色设定与结构化输出限制”的复合策略。在系统单轮交互中，模型首先被赋予“你是一个 \{category\_name\} 导购专家”的角色指令。White 等人在软件工程视角的提示模式（Prompt Pattern）研究中分析表明，设定专家角色（Persona）能有效收缩模型的生成空间，使输出贴合该垂直领域的专业语境\cite{White2023PromptPatternCatalog}。继而，基于运行时的动态提示词拼接，系统要求模型完成 8 个维度的关键参数提取：1. \texttt{usage}（用途）；2. \texttt{budget\_level}（预算描述）；3. \texttt{max\_price}（数值预算，检测到“不差钱”等表达时映射为最高限额 \texttt{999999}，缺省默认为 \texttt{20000}）；4. \texttt{sort\_field}（依据用户偏好推断的排序权重）；5. \texttt{summary}（核心诉求归纳）；6. \texttt{product\_type}（特定类型约束）；7. \texttt{brand}（品牌偏好）；8. \texttt{owned\_items}（用户已购设备，用于生态联动）。提取出的 \texttt{owned\_items} 字段是实现跨品类关联逻辑的核心，使系统能够识别用户已有的产品并推荐具有协同效应的新型号。
+循此思路，本系统将提示词的稳定构建视为工程层面的核心设计，采用“角色设定与结构化输出限制”的复合策略。在系统单轮交互中，模型首先被赋予“你是一个 \{category\_name\} 导购专家”的角色指令。White 等人在软件工程视角的提示模式（Prompt Pattern）研究中分析表明，设定专家角色（Persona）能有效收缩模型的生成空间，使输出贴合该垂直领域的专业语境\cite{White2023PromptPatternCatalog}。继而，基于运行时的动态提示词拼接（Dynamic Prompt Construction），系统要求模型完成 8 个维度的关键参数提取：1. \texttt{usage}（用途）；2. \texttt{budget\_level}（预算描述）；3. \texttt{max\_price}（数值预算，检测到“不差钱”等表达时映射为最高限额 \texttt{999999}，缺省默认为 \texttt{20000}）；4. \texttt{sort\_field}（依据用户偏好推断的排序权重）；5. \texttt{summary}（核心诉求归纳）；6. \texttt{product\_type}（特定类型约束）；7. \texttt{brand}（品牌偏好）；8. \texttt{owned\_items}（用户已购设备，用于生态联动）。提取出的 \texttt{owned\_items} 字段是实现跨品类关联逻辑的核心，使系统能够识别用户已有的产品并推荐具有协同效应的新型号。
 
 针对原生大模型输出格式不可直接作为程序输入的风险，系统于提示词末尾应用了“输出自动化器”设计理念\cite{White2023PromptPatternCatalog}。通过“输出严格 JSON”的数据契约声明，系统成功将自然语言处理环节转换为精确、可用于底层校验模块的数据传递。
 
@@ -226,13 +148,10 @@ def _parse_intent_generic(self, user_msg: str, category_name: str, fields_desc: 
     # 调用 LLM 接口进行 JSON 提取
     return self.call_llm_json(system_rules, user_msg)
 \end{lstlisting}
-在工程实现层面，意图解析还需应对多轮对话中的语境延续问题。用户在追问或修改需求时（如"再便宜一点的型号"或"改成黑色的"），往往省略了前几轮已确立的品类和核心约束。系统通过将最近两轮对话历史（\texttt{history[-2:]}）拼接至提示词消息队列，使 LLM 在解析当前查询时能够回溯先前上下文，从而正确继承前序轮次的槽位信息，避免重复询问。同时，为应对 LLM 偶发的输出格式偏差（如返回 Markdown 代码块包裹的 JSON），系统设计了容错预处理逻辑，在调用 \texttt{json.loads()} 之前自动剥离反引号与语言标识符。当解析彻底失败时，系统回退至安全默认值——预算上限 20{,}000 元、排序字段 \texttt{Value\_Score}、摘要"综合推荐"——以保证推荐流程不会因单次解析异常而中断。
 
+此外，为解决系统预设商品类别有限的问题，系统设计了动态品类补全机制（Dynamic Category Scoring System）。当核心识别模块 \texttt{CategoryDetector} 检测到用户需求涉及未预置领域的商品时，系统将进入大语言模型知识推理模式，自动补充构建该品类的评价维度框架。
 
-
-此外，为解决系统预设商品类别有限的问题，系统设计了动态品类补全机制。当核心识别模块 \texttt{CategoryDetector} 检测到用户需求涉及未预置领域的商品时，系统将进入大语言模型知识推理模式，自动补充构建该品类的评价维度框架。
-
-在动态推理流程的实现中，提示模板应用了“思维链”诱导策略。Wei 等人在研究中发现，要求模型隐式或显式地输出逻辑推理的中间步骤，可以成倍提升其应对复杂业务推理的容错率与准确性\cite{Wei2022ChainOfThought}。基于此，构建算法（参见代码 \ref{code:dynamic_sys}）并非单纯向大模型索要最终结果，而是引导模型逐步推演：首先提取该品类 3-5 个核心功能的评价指标（例如厨房电器的“功率”“容量”），进而为各个指标分配权重、生成底层数据模型的字段名，最后归纳出适合匹配用户口语表达的使用场景。依托这种步步推进的思维链模式扩展边界，系统即便并未预先创建底层库表，亦可保持推荐架构评价体系在处理长尾类别时的鲁棒性与语义自洽。
+在动态推理流程的实现中，提示模板应用了“思维链（Chain-of-Thought）”诱导策略。Wei 等人在研究中发现，要求模型隐式或显式地输出逻辑推理的中间步骤，可以成倍提升其应对复杂业务推理的容错率与准确性\cite{Wei2022ChainOfThought}。基于此，构建算法（参见代码 \ref{code:dynamic_sys}）并非单纯向大模型索要最终结果，而是引导模型逐步推演：首先提取该品类 3-5 个核心功能的评价指标（例如厨房电器的“功率”“容量”），进而为各个指标分配权重、生成底层数据模型的字段名，最后归纳出适合匹配用户口语表达的使用场景。依托这种步步推进的思维链模式扩展边界，系统即便并未预先创建底层库表，亦可保持推荐架构评价体系在处理长尾类别时的鲁棒性与语义自洽。
 
 \begin{lstlisting}[language=Python, caption={基于LLM的动态评分体系思维链构建算法（对应文件：category\_detector.py）}, label={code:dynamic_sys}]
     def build_scoring_system(
@@ -294,8 +213,6 @@ def _parse_intent_generic(self, user_msg: str, category_name: str, fields_desc: 
 \end{algorithmic}
 \end{algorithm}
 
-算法~\ref{alg:specific_dimensions} 展示了 \texttt{ScoringDimension} 数据类的结构设计。该类以 \texttt{name}（中文展示标签）、\texttt{field}（数据库字段名）、\texttt{weight}（归一化权重）和 \texttt{description}（维度说明）四个属性描述一个评分维度，构成系统中所有加权评分的基本计算单元。通过将权重与字段名分离存储，算法支持在不修改查询逻辑的前提下灵活调整各维度的重要程度。
-
 \begin{algorithm}
 \caption{CameraAgent 专有评分维度示例}
 \label{alg:camera_dimensions}
@@ -309,8 +226,6 @@ def _parse_intent_generic(self, user_msg: str, category_name: str, fields_desc: 
 \STATE \quad ]
 \end{algorithmic}
 \end{algorithm}
-
-算法~\ref{alg:camera_dimensions} 展示了 \texttt{CameraAgent} 的品类特定维度定义。相机品类选取便携性（权重 0.3）、低光画质（权重 0.4）和视频能力（权重 0.3）三个维度，其中低光画质权重最高，反映了当前无反相机用户对高感光性能的核心诉求。三个维度权重之和恰好为 1.0，确保加权得分的可比性，这一配置逻辑同样适用于系统中其他 9 个品类代理的维度定义。
 
 \begin{algorithm}
 \caption{GPUAgent 专有评分维度示例}
@@ -332,34 +247,6 @@ def _parse_intent_generic(self, user_msg: str, category_name: str, fields_desc: 
 由于商品原始数据来源多样，参数量纲与格式存在显著差异，系统在数据处理阶段引入了多类型归一化策略。对于布尔型参数，系统采用固定权值映射；对于离散枚举变量，根据性能等级设置分档权重；对于连续数值变量，则采用 Min-Max 归一化方法进行标准化处理。
 
 归一化后的各项指标依据预设权重通过加权求和（Weighted Sum）计算综合得分，并映射至 $0$--$100$ 的评分空间。该结果不仅用于最终推荐排序，也为前端 Plotly 可视化模块提供了稳定的数据结构，支持雷达图与多维能力对比图的动态呈现。
-
-
-在数学形式上，商品 $p$ 的综合推荐得分 $S(p)$ 可表示为各评分维度的加权求和：
-
-\begin{equation}
-S(p) = \sum_{i=1}^{N} w_i \cdot \hat{s}_i(p), \quad \sum_{i=1}^{N} w_i = 1
-\label{eq:weighted_score}
-\end{equation}
-
-其中 $N$ 为当前品类的评分维度总数（通用维度3个 + 专有维度2至4个），$w_i$ 为第 $i$ 个维度的预设权重，$\hat{s}_i(p) \in [0,100]$ 为归一化后的维度得分。
-
-针对不同数据类型的参数，系统采用三种归一化策略：
-
-\begin{enumerate}
-\item \textbf{连续数值型参数}（如重量、电池容量、传感器尺寸）采用 Min-Max 归一化：
-\begin{equation}
-\hat{s}(x) = \frac{x - x_{\min}}{x_{\max} - x_{\min}} \times 100
-\label{eq:minmax}
-\end{equation}
-对于越小越好的参数（如机身重量、功耗 TDP），在归一化后取补值 $\hat{s}(x) = 100 - \hat{s}(x)$，使高分始终对应用户偏好方向。
-
-\item \textbf{布尔型参数}（如是否支持4K录制、是否具备主动降噪）按固定权值映射：支持赋值100，不支持赋值0。
-
-\item \textbf{离散枚举型参数}（如传感器画幅类型：全画幅 $>$ APS-C $>$ M43 $>$ 1英寸）依据性能等级设置分档权重，确保不同规格之间具备可比的数值基础。
-\end{enumerate}
-
-以相机品类为例，其评分体系融合了通用维度（性价比权重0.20、品牌信誉0.15、用户评价0.15）与专有维度（低光画质0.40、便携性0.30、视频能力0.30），通用与专有维度分别归一化后联合计算最终得分 $S(p)$。这一得分既作为候选排序依据，也以归一化形式直接驱动前端雷达图与多维柱状图的数值轴。
-
 
 \subsubsection{双层场景化推荐引擎}
 
@@ -444,38 +331,6 @@ ECOSYSTEMS = {
 
 
 
-系统目前预置了六类生态应用场景（定义于 \texttt{ecosystem\_config.py}），其核心设备与关联外设的映射关系如表\ref{tab:ecosystems}所示：
-
-\begin{table}[htbp]
-\centering
-\caption{生态推荐场景配置总览}
-\label{tab:ecosystems}
-\begin{tabular}{p{2.2cm} p{4cm} p{3.8cm} p{2.5cm}}
-\hline
-\textbf{场景名称} & \textbf{核心品类} & \textbf{关联配套品类} & \textbf{典型关键词} \\ 
-\hline
-
-移动办公 & 笔记本电脑 & 显示器、蓝牙音箱、智能手表 & 办公、出差、会议 \\ 
-
-移动娱乐 & 手机、平板电脑 & 蓝牙音箱、耳机、智能手表 & 追剧、听歌、阅读 \\ 
-
-专业游戏 & 笔记本/显卡/游戏主机 & 显示器、耳机 & 游戏、电竞、3A \\ 
-
-摄影创作 & 相机、笔记本、显卡 & 显示器、平板电脑 & 摄影、剪辑、后期 \\ 
-
-音频发烧 & 耳机、蓝牙音箱 & 手机、平板电脑 & 音质、HiFi、无损 \\ 
-
-健康运动 & 智能手表 & 耳机、手机 & 跑步、健身、运动 \\ 
-
-\hline
-\end{tabular}
-\end{table}
-
-
-生态推荐的触发采用关键词权重评分机制：用户输入中高权重关键词（如"游戏""电竞"）每次命中计10分，中权重关键词（如"打游戏""帧率"）每次命中计5分，累计得分最高的前两个生态场景被选中。系统随后提取用户意图中的 \texttt{owned\_items} 字段，将已有设备从关联品类候选中排除，避免重复推荐；对于核心设备与关联设备之间的优先级，系统赋予核心设备的关联推荐权重（+2）高于关联设备的反向推荐权重（+1），确保跨品类建议的相关性。最终，大语言模型根据生态场景描述、当前品类信息与用户诉求，生成一段自然、有针对性的搭配建议附加于主推荐结果之后，引导用户自然延伸至配套设备的选购。
-
-
-
 \subsection{系统架构实现}
 
 \subsubsection{全栈基础架构与运行环境实现}
@@ -490,33 +345,28 @@ st.session\_state进行统一管理。
 
 如下所示的代码片段展示了应用入口状态的初始化逻辑，该机制能够在多轮交互中保持数据一致性，从而保证推荐流程能够持续依据用户输入进行动态更新：
 
-
 \begin{algorithm}
 \caption{系统状态初始化机制（对应文件：app.py）}
 \label{alg:init_session}
 \begin{algorithmic}[1]
+\COMMENT{确保关键组件在多次交互中持久存在}
+\IF{‘central\_router\_agent’ 不存在于 session}
+    \STATE session[‘central\_router\_agent’] $\gets$ \texttt{Instantiate(MultiCategoryAgent)}
+\ENDIF
 
-\State \Comment{确保关键组件在多次交互中持久存在}
+\IF{‘conversation\_history’ 不存在于 session}
+    \STATE session[‘conversation\_history’] $\gets$ \textsc{EmptyList()}
+\ENDIF
 
-\If{\texttt{central\_router\_agent} $\notin$ session}
-    \State session[\texttt{central\_router\_agent}] $\gets$ \texttt{Instantiate(MultiCategoryAgent)}
-\EndIf
+\IF{‘current\_recommendation\_results’ 不存在于 session}
+    \STATE session[‘current\_recommendation\_results’] $\gets$ \textsc{Null}
+\ENDIF
 
-\If{\texttt{conversation\_history} $\notin$ session}
-    \State session[\texttt{conversation\_history}] $\gets$ \textsc{EmptyList}()
-\EndIf
-
-\If{\texttt{current\_recommendation\_results} $\notin$ session}
-    \State session[\texttt{current\_recommendation\_results}] $\gets$ \textsc{Null}
-\EndIf
-
-\If{\texttt{active\_visualization\_charts} $\notin$ session}
-    \State session[\texttt{active\_visualization\_charts}] $\gets$ \textsc{Null}
-\EndIf
-
+\IF{‘active\_visualization\_charts’ 不存在于 session}
+    \STATE session[‘active\_visualization\_charts’] $\gets$ \textsc{Null}
+\ENDIF
 \end{algorithmic}
 \end{algorithm}
-
 
 
 在智能推理部分，系统通过标准 API 接口接入大语言模型服务。该接口遵循 OpenAI API 的调用规范，并通过配置文件统一管理模型参数，例如 config.LLM\_MODEL和自定义 baseUrl 等。具体实现见如下代码：
@@ -525,26 +375,19 @@ st.session\_state进行统一管理。
 \caption{大语言模型客户端初始化架构（对应文件：base\_agent.py）}
 \label{alg:init_model_client}
 \begin{algorithmic}[1]
+\COMMENT{初始化与大语言模型服务的连接}
+\STATE self.llm\_interface $\gets$ \texttt{Instantiate LLM\_Client With Parameters:}
+\STATE \quad API\_Key = \texttt{RetrieveFromConfig("API\_KEY")}
+\STATE \quad Base\_Endpoint = \texttt{"https://api.model-provider.com/v1"}
+\STATE \quad Timeout\_Seconds = 30
+\STATE \quad Max\_Retries = 3
 
-\State \Comment{初始化与大语言模型服务的连接}
-
-\State \texttt{self.llm\_interface $\gets$ InstantiateLLMClient(}
-\State \hspace{1.5em}\texttt{API\_Key = RetrieveFromConfig("API\_KEY"),}
-\State \hspace{1.5em}\texttt{Base\_Endpoint = "https://api.model-provider.com/v1",}
-\State \hspace{1.5em}\texttt{Timeout\_Seconds = 30,}
-\State \hspace{1.5em}\texttt{Max\_Retries = 3}
-\State \texttt{)}
-
-\State \Comment{验证连接状态}
-
-\If{\texttt{ConnectionFails(self.llm\_interface)}}
-    \State \texttt{LogWarning("Model service unavailable. Fallback protocols enabled.")}
-\EndIf
-
+\COMMENT{验证连接状态}
+\IF{\texttt{ConnectionFails}(self.llm\_interface)}
+    \STATE \texttt{LogWarning("Model service unavailable. Fallback protocols enabled.")}
+\ENDIF
 \end{algorithmic}
 \end{algorithm}
-
-
 
 通过这种方式，模型调用逻辑与系统业务代码保持相对独立，当需要升级或替换底层模型时，只需修改配置文件即可完成迁移。
 
@@ -621,89 +464,65 @@ st.session\_state进行统一管理。
 在具体实现中，系统定义了多个继承自基类的子类。例如 \texttt{CameraAgent} 主要负责相机类产品推荐，而 \texttt{PhoneAgent} 则用于手机产品推荐。这些子类通过重写方法定义各自的评价指标与专属设置，例如 \texttt{CameraAgent} 定义的代码如下：
 
 \begin{algorithm}
-\caption{相机代理类实现（Part 1：配置与基础结构）}
-\label{alg:camera_agent_impl_1}
+\caption{相机代理类实现（对应文件：electronics\_agents.py）}
+\label{alg:camera_agent_impl}
 \begin{algorithmic}[1]
-
-\State \textbf{Class} CameraAgent \textbf{Inherits} BaseDbAgent
-\State \Comment{相机推荐代理}
-
-\State \textbf{Properties:}
-
-\State \texttt{SCENARIO\_PRESETS = \{}
-\State \hspace{1.5em}\texttt{"vlog": ["ZV-E10", "G7 X", "Pocket", "Action", "Z30"],}
-\State \hspace{1.5em}\texttt{"travel": ["X100", "GR III", "a6400", "Z fc", "X-T30", "X-S10"],}
-\State \hspace{1.5em}\texttt{"street": ["GR III", "X100", "Leica", "Pen-F", "X-E4"],}
-\State \hspace{1.5em}\texttt{"portrait": ["A7", "R6", "R5", "Z6", "Z5", "5D"],}
-\State \hspace{1.5em}\texttt{"landscape": ["A7 R", "Z7", "D850", "GFX"],}
-\State \hspace{1.5em}\texttt{"beginner": ["R50", "Z30", "M50", "200D", "D3500", "a6000"]}
-\State \texttt{\}}
-
-\State
-
-\State \texttt{SCENARIO\_KEYWORDS = \{}
-\State \hspace{1.5em}\texttt{"vlog": ["vlog", "视频", "拍片", "直播", "up主"],}
-\State \hspace{1.5em}\texttt{"travel": ["travel", "旅行", "旅游"],}
-\State \hspace{1.5em}\texttt{"street": ["street", "街拍", "人文", "扫街"],}
-\State \hspace{1.5em}\texttt{"portrait": ["portrait", "人像", "写真"],}
-\State \hspace{1.5em}\texttt{"landscape": ["landscape", "风光", "风景", "大片"],}
-\State \hspace{1.5em}\texttt{"beginner": ["beginner", "新手", "入门", "小白", "学生"]}
-\State \texttt{\}}
-
-\State
-
-\State \textbf{Function} get\_category\_config()
-
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-\caption{相机代理类实现（Part 2：核心函数实现）}
-\label{alg:camera_agent_impl_2}
-\begin{algorithmic}[1]
-
-\State \textbf{Function} get\_category\_config() $\rightarrow$ CategoryConfig
-\State \hspace{1.5em}\textbf{Return} \texttt{CategoryConfig(}
-\State \hspace{3em}\texttt{name = "相机",}
-\State \hspace{3em}\texttt{name\_en = "camera",}
-\State \hspace{3em}\texttt{table\_name = "cameras",}
-\State \hspace{3em}\texttt{scoring\_dimensions = self.get\_specific\_dimensions(),}
-\State \hspace{3em}\texttt{scenario\_presets = self.SCENARIO\_PRESETS,}
-\State \hspace{3em}\texttt{scenario\_keywords = self.SCENARIO\_KEYWORDS,}
-\State \hspace{3em}\texttt{default\_sort\_field = "LowLight\_Score",}
-\State \hspace{3em}\texttt{display\_fields = ["Brand", "Model", "Price", "LowLight\_Score", "Video\_Score", "Portability\_Score"]}
-\State \hspace{1.5em}\texttt{)}
-
-\State
-
-\State \textbf{Function} get\_specific\_dimensions() $\rightarrow$ List
-\State \hspace{1.5em}\textbf{Return} \texttt{[}
-\State \hspace{3em}\texttt{ScoringDimension("便携性", "Portability\_Score", 0.3, "如重量体积"),}
-\State \hspace{3em}\texttt{ScoringDimension("低光画质", "LowLight\_Score", 0.4, "暗光表现"),}
-\State \hspace{3em}\texttt{ScoringDimension("视频能力", "Video\_Score", 0.3, "视频拍摄能力")}
-\State \hspace{1.5em}\texttt{]}
-
-\State
-
-\State \textbf{Function} get\_model\_class()
-\State \hspace{1.5em}\textbf{Return} Camera
-
-\State
-
-\State \textbf{Function} get\_product\_info\_text(p)
-\State \hspace{1.5em}\textbf{Return} \texttt{Concatenate(}
-\State \hspace{3em}\texttt{"型号:", p.Brand, " ", p.Model,}
-\State \hspace{3em}\texttt{", 价格:", p.Price,}
-\State \hspace{3em}\texttt{", 低光:", p.LowLight\_Score,}
-\State \hspace{3em}\texttt{", 视频:", p.Video\_Score,}
-\State \hspace{3em}\texttt{", 便携:", p.Portability\_Score}
-\State \hspace{1.5em}\texttt{)}
-
-\State
-
-\State \textbf{Function} handle\_chat(user\_msg, history)
-\State \hspace{1.5em}\textbf{Return} \texttt{self.handle\_chat\_generic(user\_msg, history, Camera, self.SCENARIO\_KEYWORDS)}
-
+\STATE \textbf{Class} CameraAgent \textbf{Inherits} BaseDbAgent:
+\STATE
+\STATE \quad \COMMENT{相机推荐代理}
+\STATE
+\STATE \quad \textbf{Properties:}
+\STATE \quad SCENARIO\_PRESETS: \{
+\STATE \quad \quad "vlog": ["ZV-E10", "G7 X", "Pocket", "Action", "Z30"],
+\STATE \quad \quad "travel": ["X100", "GR III", "a6400", "Z fc", "X-T30", "X-S10"],
+\STATE \quad \quad "street": ["GR III", "X100", "Leica", "Pen-F", "X-E4"],
+\STATE \quad \quad "portrait": ["A7", "R6", "R5", "Z6", "Z5", "5D"],
+\STATE \quad \quad "landscape": ["A7 R", "Z7", "D850", "GFX"],
+\STATE \quad \quad "beginner": ["R50", "Z30", "M50", "200D", "D3500", "a6000"]
+\STATE \quad \}
+\STATE
+\STATE \quad SCENARIO\_KEYWORDS: \{
+\STATE \quad \quad "vlog": ["vlog", "视频", "拍片", "直播", "up主"],
+\STATE \quad \quad "travel": ["travel", "旅行", "旅游"],
+\STATE \quad \quad "street": ["street", "街拍", "人文", "扫街"],
+\STATE \quad \quad "portrait": ["portrait", "人像", "写真"],
+\STATE \quad \quad "landscape": ["landscape", "风光", "风景", "大片"],
+\STATE \quad \quad "beginner": ["beginner", "新手", "入门", "小白", "学生"]
+\STATE \quad \}
+\STATE
+\STATE \quad \textbf{Function} get\_category\_config() $\rightarrow$ CategoryConfig:
+\STATE \quad \quad \textbf{Return} CategoryConfig(
+\STATE \quad \quad \quad name = "相机",
+\STATE \quad \quad \quad name\_en = "camera",
+\STATE \quad \quad \quad table\_name = "cameras",
+\STATE \quad \quad \quad scoring\_dimensions = self.get\_specific\_dimensions(),
+\STATE \quad \quad \quad scenario\_presets = self.SCENARIO\_PRESETS,
+\STATE \quad \quad \quad scenario\_keywords = self.SCENARIO\_KEYWORDS,
+\STATE \quad \quad \quad default\_sort\_field = "LowLight\_Score",
+\STATE \quad \quad \quad display\_fields = ["Brand", "Model", "Price", "LowLight\_Score", "Video\_Score", "Portability\_Score"]
+\STATE \quad \quad )
+\STATE
+\STATE \quad \textbf{Function} get\_specific\_dimensions() $\rightarrow$ List$<$ScoringDimension$>$:
+\STATE \quad \quad \textbf{Return} [
+\STATE \quad \quad \quad ScoringDimension("便携性", "Portability\_Score", 0.3, "如重量体积"),
+\STATE \quad \quad \quad ScoringDimension("低光画质", "LowLight\_Score", 0.4, "暗光表现"),
+\STATE \quad \quad \quad ScoringDimension("视频能力", "Video\_Score", 0.3, "视频拍摄能力")
+\STATE \quad \quad ]
+\STATE
+\STATE \quad \textbf{Function} get\_model\_class() $\rightarrow$ Model:
+\STATE \quad \quad \textbf{Return} Camera
+\STATE
+\STATE \quad \textbf{Function} get\_product\_info\_text(p: Camera) $\rightarrow$ String:
+\STATE \quad \quad \textbf{Return} Concatenate(
+\STATE \quad \quad \quad "型号:", p.Brand, " ", p.Model,
+\STATE \quad \quad \quad ", 价格:", p.Price,
+\STATE \quad \quad \quad ", 低光:", p.LowLight\_Score,
+\STATE \quad \quad \quad ", 视频:", p.Video\_Score,
+\STATE \quad \quad \quad ", 便携:", p.Portability\_Score
+\STATE \quad \quad )
+\STATE
+\STATE \quad \textbf{Function} handle\_chat(user\_msg, history = None) $\rightarrow$ Result:
+\STATE \quad \quad \textbf{Return} self.handle\_chat\_generic(user\_msg, history, Camera, self.SCENARIO\_KEYWORDS)
 \end{algorithmic}
 \end{algorithm}
 
@@ -748,18 +567,6 @@ st.session\_state进行统一管理。
 \end{algorithm}
 
 通过这种方式，系统能够灵活支持多种商品类型，并且在需要扩展新类别时只需新增对应 Agent 并注册，无需修改总体处理链路。
-
-\subsubsection{品类识别与动态路由实现}
-
-在 \texttt{MultiCategoryAgent} 的调度框架下，\texttt{CategoryDetector} 承担着品类识别的核心职责，其工作流程分为两个层次。
-
-\textbf{第一层：关键词快速匹配。}系统预先为10个品类维护了关键词词典，覆盖中英文通俗名称与常见缩写。每次接收到用户输入后，系统对词典中所有品类的关键词进行遍历匹配，若用户输入与某品类关键词存在包含关系则命中该品类。例如输入"索尼微单"会命中"相机"品类，输入"PS5"会命中"游戏主机"品类。关键词匹配的时间复杂度为 $O(K \cdot L)$（$K$ 为所有品类关键词总数，$L$ 为用户输入长度），在实测中可在毫秒级完成识别。
-
-\textbf{第二层：LLM 语义推断。}当关键词匹配未能命中任何预设品类时，系统将用户输入传递给大语言模型，要求其从已知品类列表中选择最匹配的品类，或标记为未知品类（\texttt{is\_new: True}）。对于未知品类，系统进一步调用 \texttt{build\_scoring\_system()} 方法，引导 LLM 逐步构建该品类的评分维度、典型使用场景及推荐关键词。这一动态扩展机制使系统在保持代码不变的前提下，能够对"扫地机器人""洗碗机""电子书阅读器"等长尾品类给出基础的选购建议，显著提升了系统的泛化能力。
-
-在已知品类命中后，\texttt{MultiCategoryAgent} 查询 \texttt{\_agents} 字典中对应品类的 Agent 实例。由于所有预置 Agent（\texttt{CameraAgent}、\texttt{PhoneAgent}、\texttt{LaptopAgent} 等10个）在系统启动时统一完成初始化并注册，调度过程仅为一次字典查询，延迟可忽略不计。若字典中不存在对应键（即动态新品类），系统才通过 \texttt{\_create\_dynamic\_agent()} 即时构建通用 Agent 实例并缓存至 \texttt{\_dynamic\_configs} 字典，供后续同品类请求复用，避免重复调用 LLM 推演评分体系。
-
-
 
 \subsubsection{商品数据层实现与数据清洗}
 
@@ -835,45 +642,6 @@ st.session\_state进行统一管理。
 ORM 框架会自动将这些链式调用操作转换为底层经过优化的 SQL 查询语句。这种实现方式不仅保证了数据检索的安全性，全面规避了 SQL 注入风险，还使系统能够灵活响应大语言模型提取的动态意图，在多维数据向量空间中精准平衡预算与性能。
 
 在数据层构建阶段，系统对原始数据进行了必要的清洗处理。原始商品数据来源于网络爬虫抓取的 CSV 文件，其中普遍存在字段格式不一、量纲缺失等工程问题。为此，系统设计了自动化的批处理管道：首先去除参数值中的特殊字符与单位前缀（如 “g”、“mAh”），将其转换为可计算的数值类型；其次针对“支持/不支持”等文本描述，统一映射为布尔型标识；最后处理缺失值并完成数据正则化。经过清洗后的规范数据集通过 SQLAlchemy 的 \texttt{SessionLocal} 管道导入数据库，确立了系统的“单一事实来源”，从根源上约束了大模型产生幻觉的空间。
-表\ref{tab:models}对系统当前支持的10类商品数据模型进行了汇总，展示了各品类关键技术参数字段与专属评分维度的结构化建模方式：
-
-\begin{table}[htbp]
-\centering
-\caption{10类商品数据模型关键字段与专属评分维度汇总}
-\label{tab:models}
-\begin{tabular}{p{1.8cm} p{5.5cm} p{4.2cm}}
-\hline
-\textbf{品类} & \textbf{关键技术参数字段} & \textbf{专属评分维度} \\ 
-\hline
-
-相机 & 总像素(MP)、传感器类型、最高ISO、重量(g)、4K支持 & 便携性、低光画质、视频能力 \\ 
-
-手机 & 处理器、RAM/ROM、电池容量(mAh)、主摄像素、操作系统 & 性能、拍照、续航 \\ 
-
-笔记本 & CPU、GPU、RAM、屏幕尺寸、重量(kg)、续航(h)、类别 & 性能、便携性、屏幕 \\ 
-
-耳机 & 类型(头戴/入耳)、无线、主动降噪、续航(h)、驱动(mm)、阻抗(Ω) & 音质、舒适度、降噪效果 \\ 
-
-平板 & 屏幕尺寸、处理器、RAM/ROM、电池(mAh)、手写笔支持 & 性能、屏幕、生产力 \\ 
-
-智能手表 & 续航(天)、防水等级、操作系统、健康功能 & 续航、健康功能、智能体验 \\ 
-
-蓝牙音箱 & 功率(W)、蓝牙版本、续航(h)、防水等级、单元配置 & 音质、续航、便携性 \\ 
-
-显示器 & 尺寸(in)、分辨率、刷新率(Hz)、面板类型、色域、响应时间(ms) & 画质、性能、人体工学 \\ 
-
-游戏主机 & 存储容量、光驱、最大分辨率、最高帧率(fps)、GPU算力(TF) & 游戏性能、媒体能力、性价比 \\ 
-
-显卡 & VRAM(GB)、显存带宽(GB/s)、TDP(W)、3DMark跑分、架构 & 游戏性能、创作性能、功耗散热 \\ 
-
-\hline
-\end{tabular}
-\end{table}
-
-
-所有品类均共享三个通用评分维度（性价比权重0.20、品牌信誉0.15、用户评价0.15），与专属维度合并后形成完整的评分向量。得益于 SQLAlchemy ORM 的抽象层，新增品类仅需在 \texttt{models.py} 中定义继承 \texttt{Base} 的新数据类，并在 \texttt{electronics\_agents.py} 中实现对应 Agent 子类，即可无缝接入既有推荐流程，无需改动数据库连接与推荐链路的任何代码。
-
-
 
 \subsubsection{用户界面与交互式可视化实现}
 
@@ -914,13 +682,6 @@ ORM 框架会自动将这些链式调用操作转换为底层经过优化的 SQL
 
 使用这种基于 HTML 模板的内嵌组件方案，极大方便在 Streamlit 等响应式数据大屏中动态组合不同类别的特征信息，使页面布局既保留了 Web 开发的灵活性，又兼顾了数据驱动的高效性。
 
-
-系统针对不同商品类别设计了差异化的参数展示策略。在 \texttt{render\_product\_card()} 函数内部，通过判断 SQLAlchemy 对象的类名（\texttt{class\_name}）自动切换规格标签内容：手机展示处理器型号、RAM+ROM组合、电池容量和主摄像素；笔记本展示CPU型号、独立显卡、内存规格和屏幕尺寸；耳机展示类型、是否支持主动降噪（ANC）和续航时长；相机展示总像素、最高ISO、机身重量和4K支持情况；其余品类类似处理。这种按需渲染策略确保每张商品卡片都以最贴合决策需求的参数维度呈现信息，有效降低用户在信息密集界面中的认知负荷。
-
-商品卡片的评分标签部分同样经过动态筛选：系统遍历产品对象所有以 \texttt{\_Score} 结尾的属性，提取评分最高的前三项生成彩色得分标签置于卡片顶部，快速传递该产品最突出的性能亮点。
-
-在视觉设计层面，系统通过外部 \texttt{style.css} 文件实现了玻璃拟态（Glassmorphism）界面风格。主题配色方案采用静谧蓝（\texttt{\#5D89B1}）、金黄（\texttt{\#F1C40F}）与橙红（\texttt{\#E67E22}）三色组合，同时应用于雷达图与柱状图的轨迹颜色，使可视化图表与整体界面风格保持视觉统一。所有图表通过 \texttt{\_apply\_theme()} 函数统一注入白色底板、\texttt{plotly\_white} 模板和 Inter 字体族，保证图表视觉质感的一致性。Plotly 内置的鼠标悬停提示、图例点击切换与坐标轴缩放等交互特性无需额外开发即可提供流畅的动态交互体验，有效降低了可视化模块的工程实现成本。
-
 在数据可视化部分，系统通过 Plotly 绘图引擎提供了三类交互式图表，旨在全方位展示产品性能差异并增强结果的可解释性。
 
 第一类为雷达图（Radar Chart），通过 \texttt{go.Scatterpolar} 函数绘制。系统将商品的各维度原始参数进行 Min-Max 归一化处理（映射至 0--100 区间），并以填充面积的形式展示单个产品在多个评分维度上的综合表现。这种呈现方式便于用户直观观察产品各项能力的平衡度，例如观察能力面积的大小以及在特定维度（如便携性或画质）上的偏向程度。图表支持交互式缩放，并在悬停时显示精确的维度分值。
@@ -932,126 +693,66 @@ ORM 框架会自动将这些链式调用操作转换为底层经过优化的 SQL
 这些图表不仅在视觉上采用了玻璃拟态（Glassmorphism）与现代配色风格，更在逻辑上与后端的双层推荐引擎紧密联动，实时反映动态生成的评分数据，帮助用户在复杂的数码产品配置中快速做出理性的购买决策。
 
 \begin{algorithm}
-\caption{雷达图绘制算法（\texttt{draw\_radar}，对应文件：\texttt{visualizer.py}）}
+\caption{雷达图渲染算法（draw\_radar）}
 \label{alg:draw_radar}
 \begin{algorithmic}[1]
-\REQUIRE products（推荐商品列表），dimensions（可选维度配置）
-\ENSURE 多维雷达对比图对象 fig
+\REQUIRE products, dimensions (可选)
+\ENSURE 雷达图对象
 
-\STATE \COMMENT{步骤 1：确定雷达轴标签}
-\IF{dimensions $\neq \textsc{Null}$}
-    \STATE labels $\gets$ [``便携'', ``画质'', ``视频'', ``高感'', ``操控'']
-\ELSE
-    \STATE labels $\gets$ [d[0] \textbf{for} d \textbf{in} dimensions]
-\ENDIF
-
-\STATE \COMMENT{步骤 2：为每个商品生成极坐标轨迹}
-\FOR{$i, p$ \textbf{in} \textsc{Enumerate}(products)}
-    \STATE values $\gets$ []
-    \FOR{each $(label, field, max\_val)$ in dimensions}
-        \STATE $v \gets$ \textsc{GetAttr}(p, field, 0)
-        \IF{$max\_val \neq 0$}
-            \STATE $v \gets \min(v / max\_val \times 100,\; 100)$
-        \ENDIF
-        \STATE \textsc{Append}(values, $v$)
-    \ENDFOR
-    \STATE values $\gets$ values $+$ values[0:1] \COMMENT{首尾闭合多边形}
-    \STATE color $\gets$ \textsc{ThemeColors}$[i \bmod 3]$
-    \STATE \textsc{AddTrace}(fig, \textsc{Scatterpolar}(r=values, theta=labels, fill=``toself'', opacity=0.2, line\_color=color))
+\STATE 根据 dimensions 确定 labels
+\FOR{each product in products}
+    \STATE 计算维度得分 values（若 dimensions 为空则使用预定义字段）
+    \STATE values $\gets$ values + values[0] \COMMENT{闭合}
+    \STATE 添加雷达图轨迹：r = values, theta = labels + labels[0]
 \ENDFOR
-
-\STATE \COMMENT{步骤 3：应用全局主题与图例}
-\STATE \textsc{ApplyTheme}(fig) \COMMENT{白底，Inter 字体，蓝色刻度}
-\STATE \textsc{UpdateLayout}(fig, polar.radialaxis.range=[0,100], showlegend=True, height=320)
-
+\STATE 设置极坐标样式、图例等
 \RETURN fig
 \end{algorithmic}
 \end{algorithm}
 
-算法~\ref{alg:draw_radar} 实现了多商品雷达图的绘制逻辑。通过 Plotly 的 \texttt{Scatterpolar} 轨迹组件，系统将每个商品的多维评分映射到极坐标多边形，并通过 \texttt{fill='toself'} 填充多边形内部，使不同商品的维度轮廓差异一目了然。首尾数值重复（\texttt{values += values[:1]}）确保多边形闭合，\texttt{opacity=0.2} 的半透明填充则允许多个商品的雷达图叠加显示而互不遮挡，有效呈现各商品在不同维度上的综合优劣势。
-
 \begin{algorithm}
-\caption{单维度柱状图对比（\texttt{draw\_comparison}，对应文件：\texttt{visualizer.py}）}
+\caption{单一指标柱状图对比（draw\_comparison）}
 \label{alg:draw_comparison}
 \begin{algorithmic}[1]
-\REQUIRE products（推荐商品列表），field\_name（对比字段名，如 \texttt{LowLight\_Score}）
-\ENSURE 单维度柱状对比图对象 fig
+\REQUIRE products, field\_name
+\ENSURE 柱状图对象
 
-\STATE \COMMENT{步骤 1：提取商品简称与分数}
-\STATE names $\gets$ [Model[0:8] + ``..'' \textbf{for} each product]
-\STATE full\_names $\gets$ [Brand + Model \textbf{for} each product]
-\STATE scores $\gets$ [\textsc{GetAttr}(p, field\_name, 0) \textbf{for} p \textbf{in} products]
-
-\STATE \COMMENT{步骤 2：构造柱状图对象}
-\STATE fig $\gets$ \textsc{Figure}(\textsc{Bar}(
-    \STATE \quad x = names,\; y = scores,
-    \STATE \quad marker\_color = \textsc{ThemeColors}[0:\textsc{Len}(products)],
-    \STATE \quad text = scores,\; textposition = ``auto'',
-    \STATE \quad hovertext = full\_names
-\STATE ))
-
-\STATE \COMMENT{步骤 3：格式化标题与坐标范围}
-\STATE safe\_name $\gets$ \textsc{Replace}(field\_name, ``\_Score'', ``评分'')
-\STATE \textsc{ApplyTheme}(fig)
-\STATE \textsc{UpdateLayout}(fig, title=safe\_name + `` 对比'', yaxis.range=[0, 110], height=300)
-
+\STATE 提取商品名称和得分 scores
+\STATE 创建柱状图：x = 名称, y = scores
+\STATE 设置标题为 field\_name 格式化后的文本
 \RETURN fig
 \end{algorithmic}
 \end{algorithm}
-
-算法~\ref{alg:draw_comparison} 实现了单维度得分的柱状图对比。函数接收一个字段名参数（如 \texttt{LowLight\_Score}），提取各商品对应字段的数值后，以统一的品牌主题色绘制柱状图，并在柱体顶端自动标注具体分值。纵轴范围固定为 [0, 110]，确保跨查询结果的视觉一致性，避免因动态缩放导致用户对绝对分值产生视觉误判。
 
 \begin{algorithm}
-\caption{多维分组柱状图对比（\texttt{draw\_multi\_dimension\_compare}，对应文件：\texttt{visualizer.py}）}
+\caption{多维能力对比柱状图（draw\_multi\_dimension\_compare）}
 \label{alg:multi_dim_compare}
 \begin{algorithmic}[1]
-\REQUIRE products（推荐商品列表），dimensions（可选维度配置）
-\ENSURE 多维分组柱状对比图对象 fig
+\REQUIRE products, dimensions (可选)
+\ENSURE 分组柱状图对象
 
-\STATE \COMMENT{步骤 1：确定比较维度列表}
-\IF{dimensions $\neq \textsc{Null}$}
-    \STATE dims\_conf $\gets$ [(``便携性'', \texttt{Portability\_Score}), (``低光画质'', \texttt{LowLight\_Score}), (``视频能力'', \texttt{Video\_Score})]
-\ELSE
-    \STATE dims\_conf $\gets$ dimensions
-\ENDIF
-\STATE labels $\gets$ [d[0] \textbf{for} d \textbf{in} dims\_conf]
-\STATE fields $\gets$ [d[1] \textbf{for} d \textbf{in} dims\_conf]
-
-\STATE \COMMENT{步骤 2：为每个商品生成一组柱}
-\FOR{$i, p$ \textbf{in} \textsc{Enumerate}(products)}
-    \STATE scores $\gets$ [\textsc{GetAttr}(p, f, 0) \textbf{or} 0 \textbf{for} f \textbf{in} fields]
-    \STATE color $\gets$ \textsc{ThemeColors}$[i \bmod 3]$
-    \STATE \textsc{AddTrace}(fig, \textsc{Bar}(name=p.Model, x=labels, y=scores, marker\_color=color, text=scores))
+\STATE 确定 labels 和 fields
+\FOR{each product in products}
+    \STATE 提取该商品在各 field 上的得分
+    \STATE 添加分组柱状图轨迹
 \ENDFOR
-
-\STATE \COMMENT{步骤 3：应用分组模式与主题}
-\STATE \textsc{ApplyTheme}(fig)
-\STATE \textsc{UpdateLayout}(fig, barmode=``group'', title=``核心能力多维对比'', yaxis.range=[0, 110], height=320)
-
+\STATE 设置 barmode = ``group''，图例位置等
 \RETURN fig
 \end{algorithmic}
 \end{algorithm}
-
-算法~\ref{alg:multi_dim_compare} 实现了多维度分组柱状图的绘制，采用 \texttt{barmode=\'group\'} 将同一维度下各商品的得分紧邻排列，便于横向对比。相较于雷达图侧重整体轮廓，分组柱状图在各维度的精确数值比较上更具优势，两者在系统中组合使用，可同时满足用户对``宏观印象''与``局部细节''的可视化需求，形成互补的双视图决策支持结构。
 
 
 
 \subsection{本章小结}
 
-本章从需求分析、核心算法与系统实现三个层面对智能商品推荐系统进行了完整阐述。
+本章从需求、算法和工程三个层面对系统进行了完整构建。第一节通过问卷调研梳理了用户在电商选购中遇到的核心问题——信息来源分散、评价主观性强、技术参数难以理解，并据此总结出输入理解、数据筛选和结果展示三个功能需求，同时提出了由表象展示层、路由解析层、领域决策层和事实数据层组成的四层架构，为系统整体设计奠定了基础。第二节在此框架下展开算法设计，通过思维链提示与结构化约束，实现了自然语言向结构化参数的稳定转换，构建了结合通用维度与专有维度的商品评分体系，并引入双层推荐架构及跨品类生态推荐机制，在保证推荐效果的同时提升了系统的稳定性和扩展能力。第三节则将前述设计落地为可运行系统，基于Streamlit、SQLite和相关API完成全栈环境搭建，通过面向对象设计实现多Agent推荐模块，并借助商品卡片组件和交互式图表，将推荐结果以图文结合的形式呈现给用户。三节内容环环相扣，共同验证了本文提出方案在理论设计与实际应用两个层面的可行性。
 
-第一节通过20份有效问卷梳理了用户在电商选购中的核心痛点——信息来源分散（85\%用户需跨平台切换）、评价主观性强（80\%用户认为网络评测存在偏向）、技术参数难以理解（40\%用户希望图表辅助），并据此提炼出自然语言理解、多品类推荐、结构化筛选、推荐理由生成、可视化对比和跨品类搭配六项功能需求，以及响应时延、识别准确率、可扩展性和可解释性四项非功能需求。在架构层面，提出了由表象展示层（\texttt{app.py}）、路由意图层（\texttt{multi\_agent.py}、\texttt{category\_detector.py}）、领域决策层（\texttt{base\_agent.py}、\texttt{electronics\_agents.py}）和事实数据层（\texttt{models.py}）组成的四层架构，并设计了涵盖10个品类、按中类分组的三层分类体系，为后续模块实现提供了清晰的组织框架。
-
-第二节展开算法设计。在语义解析方面，采用"角色设定+结构化输出"的复合提示策略，提取8个槽位信息，结合多轮对话上下文历史（\texttt{history[-2:]}）与容错回退机制，实现了稳定的自然语言到结构化参数的转换；针对未知品类，引入思维链诱导策略动态推演评分体系。在评分模型方面，建立了加权求和公式 $S(p)=\sum w_i \hat{s}_i(p)$，针对连续、布尔、枚举三种数据类型分别设计了 Min-Max 归一化、二值映射和分档权重三种归一化策略，确保异质参数在统一评分空间内可比。在推荐引擎方面，双层机制（场景预设 + 全库兜底）保证了在严苛约束下的推荐鲁棒性；跨品类生态推荐模块基于六大场景配置与关键词权重评分，在单品推荐完成后自动触发配套建议。
-
-第三节将设计落地为可运行系统。全栈环境基于 Python + Streamlit + SQLite + DashScope API 搭建，通过 \texttt{st.session\_state} 实现多轮对话的状态持久化。多Agent模块以面向对象设计实现，10个预置领域 Agent 在启动时统一注册，动态品类通过即时构建的通用 Agent 处理。数据层覆盖10类商品共数千条参数记录，经自动化清洗管道处理后形成"单一事实来源"。可视化模块提供雷达图、单指标柱状图与多维分组柱状图三类交互式图表，配合类别自适应的商品卡片组件和玻璃拟态界面风格，将推荐结果以图文结合的形式直观呈现给用户。各模块设计环环相扣，共同验证了本文提出方案在理论设计与工程实现两个层面的完整可行性。
-
-\section{系统评估}
+\chapter{系统评估与真实场景化分析}
 
 本章的工作重心落在验证上——用自动化脚本和多维度功能测试来检验系统是否真的好用、逻辑是否真的严密。评估严格围绕项目源代码中内嵌的验证体系展开，重点考察三个方面：意图解析的准确度、推荐逻辑能否形成闭环，以及可视化输出的联动效果是否符合预期。
 
 % ============================================================
-\subsection{评估方案设计}
+\section{评估方案设计与测试基准}
 % ============================================================
 
 系统的可靠性需要分层次地去验证。本研究为各核心模块设计了对应的自动化测试脚本，将定性判断转化为可量化的评估结果。
@@ -1063,7 +764,7 @@ ORM 框架会自动将这些链式调用操作转换为底层经过优化的 SQL
 在性能基准方面，回归测试设定了两条硬性要求：对于"相机""笔记本"等预设商品品类关键词，识别器的准确率必须达到 100\%；在网络条件正常的情况下，从意图解析到输出三张联动图表（Radar、Bar、Multi-dim）的端到端耗时应控制在 3 至 5 秒以内。
 
 % ============================================================
-\subsection{核心功能逻辑验证}
+\section{核心功能逻辑验证}
 % ============================================================
 
 为检验系统在极端条件下的健壮性，本节结合项目内的压力测试脚本，重点测试了两类边界场景。
@@ -1220,7 +921,7 @@ ORM 框架会自动将这些链式调用操作转换为底层经过优化的 SQL
 
 推荐结果能否获得用户信任，很大程度上取决于用户是否理解推荐的依据。本文在呈现层面引入基于Plotly的多类型动态可视化组件：雷达图用于多维性能的直观对比，柱状图用于单项指标的横向比较，多维散点图则允许用户从价格、性能、口碑等维度同时审视候选产品。推荐理由以平实语言输出，与图形内容相互补充，让用户不只是拿到一个结论，也能看懂结论从何而来。
 
-\section{局限性}
+\section{局限性与改进方向}
 
 \subsection{商品数据的实时性不足}
 
@@ -1234,7 +935,7 @@ ORM 框架会自动将这些链式调用操作转换为底层经过优化的 SQL
 
 系统当前的推荐权重来自人工预设的场景规则，反映的是群体层面的共性特征，对个体差异无从捕捉。用户对品牌的使用习惯、对外观的审美偏向，乃至对某类参数的特殊敏感，在现有架构中均付之阙如。每次会话从零开始，多次交互之间也不存在任何积累。在隐私保护前提下引入轻量级个人偏好模型，是系统走向实用化绕不开的问题。
 
-\section{后续改进方向}
+\subsection{后续改进方向}
 
 \textbf{其一}，引入RAG以补充软性评价信息。硬件参数之外，握持手感、系统流畅度、售后口碑等使用体验对消费决策的影响同样不可忽视。将评测视频文字稿与用户评价纳入外挂知识库，可使推荐在参数比较之外兼顾真实反馈。
 

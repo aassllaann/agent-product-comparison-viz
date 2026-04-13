@@ -112,27 +112,35 @@ def render_product_card(product, reason=None):
         else:
             specs = {'ID': getattr(product, 'id', '-')}
 
+    # Score tags (muted)
     score_html = ""
     if scores:
-        top_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:3]
-        score_html = f"<div style='margin: 12px 0;'>{''.join([f'<span class=score-tag>{k} {v}</span>' for k, v in top_scores])}</div>"
+        top_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:2] # Only top 2
+        score_html = f"<div style='margin-bottom: 8px;'>{''.join([f'<span class=score-tag>{k} {v}</span>' for k, v in top_scores])}</div>"
     
-    spec_html_str = f"<div style='margin-bottom:12px;'>{''.join([f'<span class=spec-tag><b>{k}</b> {v}</span>' for k, v in specs.items()])}</div>" if specs else ""
+    # Key specs only
+    spec_list = list(specs.items())[:3]
+    spec_html_str = f"<div style='margin-bottom:12px; opacity: 0.8;'>{''.join([f'<span class=spec-tag><b>{k}</b> {v}</span>' for k, v in spec_list])}</div>" if spec_list else ""
     
     reason_html = ""
     if reason:
         import re
         r_text = reason.replace('\n', '<br>')
         r_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', r_text)
-        reason_html = f"<div class='reason-box'>{r_text}</div>"
+        # Prioritized reason box
+        reason_html = f"<div class='reason-box'><div style='font-size:0.75rem; font-weight:700; color:var(--c-blue-500); margin-bottom:4px; opacity:0.6;'>AI 推荐理由</div>{r_text}</div>"
 
     st.markdown(f"""
     <div class='product-card'>
-        <div class='product-title'>{brand} {model}</div>
-        <div class='product-price'><span class='currency'>¥</span> {int(price):,}</div>
-        {score_html}
-        {spec_html_str}
+        <div style='display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;'>
+            <div class='product-title' style='margin-bottom:0;'>{brand} {model}</div>
+            <div class='product-price' style='margin-bottom:0; font-size:1.3rem;'><span class='currency'>¥</span> {int(price):,}</div>
+        </div>
         {reason_html}
+        <div style='margin-top:12px;'>
+            {score_html}
+            {spec_html_str}
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -149,17 +157,17 @@ if not results:
         <style>
             .block-container {
                 padding-top: 3rem !important;
-                max-width: 1100px;
+                max-width: 1360px;
             }
         </style>
     """, unsafe_allow_html=True)
     
     st.markdown("<div class='home-container'>", unsafe_allow_html=True)
-    st.markdown("<h1 class='home-title'>Your Professional Digital<br>Shopping Consultant</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='home-subtitle'>基于大模型深度分析，为您从海量数据中精准匹配并生成专属的量化选购仪表盘</p>", unsafe_allow_html=True)
+    st.markdown("<h1 class='home-title'>把选购建议讲清楚，而不只是给结论</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='home-subtitle'>输入预算和用途，系统会给出可解释的推荐、对比图和取舍依据，便于演示与答辩沟通。</p>", unsafe_allow_html=True)
     
     # Center the form horizontally using Streamlit columns
-    _, center_col, _ = st.columns([1, 6, 1])
+    _, center_col, _ = st.columns([0.4, 9.2, 0.4])
     with center_col:
         st.markdown("<div class='home-form-container'>", unsafe_allow_html=True)
         # We use border=False to eliminate the ugly outer line, letting our CSS handle it
@@ -174,13 +182,46 @@ if not results:
     st.markdown("""
     <div class='home-intro'>
         <div class='home-features'>
-            <div class='home-feature-item'>🎯 <b>智能对标</b><br><span style='font-size:0.85rem; opacity:0.8;'>精准匹配预算与用途</span></div>
-            <div class='home-feature-item'>📊 <b>量化分析</b><br><span style='font-size:0.85rem; opacity:0.8;'>实时生成能力雷达图</span></div>
-            <div class='home-feature-item'>🔗 <b>生态协同</b><br><span style='font-size:0.85rem; opacity:0.8;'>跨品类场景化搭配建议</span></div>
-            <div class='home-feature-item'>⚠️ <b>风险避雷</b><br><span style='font-size:0.85rem; opacity:0.8;'>智能识别产品潜在短板</span></div>
+            <div class='home-feature-item'>
+                <div class='feature-icon' aria-hidden='true'>
+                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>
+                        <path d='M4 12l5 5L20 6'></path>
+                    </svg>
+                </div>
+                <b class='feature-title'>需求匹配</b>
+                <span>围绕预算、用途和偏好筛选候选机型，减少无效比较。</span>
+            </div>
+            <div class='home-feature-item'>
+                <div class='feature-icon' aria-hidden='true'>
+                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>
+                        <path d='M4 19h16'></path><path d='M7 15v-4'></path><path d='M12 15V8'></path><path d='M17 15v-6'></path>
+                    </svg>
+                </div>
+                <b class='feature-title'>量化对比</b>
+                <span>自动生成多维图表，直观看到不同方案的优势与短板。</span>
+            </div>
+            <div class='home-feature-item'>
+                <div class='feature-icon' aria-hidden='true'>
+                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>
+                        <path d='M10 13a5 5 0 0 0 7.54.54l2-2a5 5 0 0 0-7.07-7.07l-1.7 1.71'></path>
+                        <path d='M14 11a5 5 0 0 0-7.54-.54l-2 2a5 5 0 0 0 7.07 7.07l1.7-1.71'></path>
+                    </svg>
+                </div>
+                <b class='feature-title'>场景协同</b>
+                <span>补充跨品类搭配建议，帮助完整说明“为什么这样配”。</span>
+            </div>
+            <div class='home-feature-item'>
+                <div class='feature-icon' aria-hidden='true'>
+                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>
+                        <circle cx='12' cy='12' r='9'></circle><path d='M12 8v5'></path><circle cx='12' cy='16.5' r='0.7' fill='currentColor' stroke='none'></circle>
+                    </svg>
+                </div>
+                <b class='feature-title'>风险提示</b>
+                <span>识别关键短板和边界条件，方便在答辩中解释取舍逻辑。</span>
+            </div>
         </div>
-        <div style='margin-top: 40px; display: flex; flex-direction: column; align-items: center;'>
-            <b style='font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;'>当前支持品类</b>
+        <div class='home-support-panel'>
+            <b class='support-panel-title'>当前支持品类</b>
             <div class='category-badge-list'>
                 <span class='category-badge'>📷 相机</span>
                 <span class='category-badge'>📱 手机</span>
@@ -217,12 +258,12 @@ else:
             st.session_state.current_prompt = prompt_input
             st.rerun()
 
-    col_main, col_side = st.columns([4, 1], gap="medium") 
+    col_main, col_side = st.columns([3, 1], gap="large") 
 
     with col_main:
         cat_name = st.session_state.current_category or "商品"
         with st.container():
-            st.markdown(f"<div class='section-header'>选购建议 · {cat_name} 推荐结果</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='section-header'>推荐结果 · {cat_name} RECOMMENDATIONS</div>", unsafe_allow_html=True)
             cols = st.columns(min(len(results), 3))
             for idx, (col, product) in enumerate(zip(cols, results[:3])):
                 with col:
@@ -251,14 +292,14 @@ else:
                 st.markdown(f"""
                     <div class='eco-box-title'>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                        全场景生态链建议
+                        全场景生态搭配建议
                     </div>
                     <div class='eco-box-content'>{eco_suggestion}</div>
                 """, unsafe_allow_html=True)
 
     with col_side:
         with st.container():
-            st.markdown("<div class='section-header'>咨询记录 · ANALYST NOTES</div>", unsafe_allow_html=True)
+            st.markdown("<div class='section-header'>咨询笔记 · ANALYST NOTES</div>", unsafe_allow_html=True)
             if not st.session_state.messages:
                 st.caption("暂无记录")
             for msg in st.session_state.messages:
